@@ -1,5 +1,7 @@
 # U-Net Architecture
 
+![alt text](u-net-architecture.png)
+
 - Architecture Overview
     1. **Contracting Path (Left Side of U):**
         - The contracting path consists of multiple blocks, each typically containing two 3x3 convolutional layers followed by a ReLU activation function.
@@ -13,13 +15,17 @@
     4. **Final Layer:**
         - The architecture typically concludes with a 1x1 convolution that maps the final feature maps to the desired number of classes for segmentation.
 
-## The Architecture
+## The Module
 
-### Model
+It uses a sequential module that runs the contained sub modules in sequence to simplify the construction of the neural network. These sub modules consists of a double convolution layer with a 3x3 filter. 
 
-It uses a sequential model that runs the contained sub modules in sequence to simplify the construction of the neural network. These sub modules consists of a double convolution layer with a 3x3 filter. 
+It performs three sets of operations: convolution, batch normalization, and a ReLU activation.
 
-You can see in the architecture above each block consists of two 3x3 conv (blue arrow) layers and a ReLU activation layer. 
+You can see in the architecture above each block consists of two 3x3 conv (blue arrow) layers and a ReLU activation layer. There are 9 blocks in total.
+
+## 2D Convolution Layer
+
+Applies a filter to the input to extract features by sliding over the input spatially. It helps in detecting features like edges, textures, etc.
 
 ### Input Channels
 
@@ -33,4 +39,12 @@ Specifies the number of filters that will be applied to the input image determin
 
 - Each **`Conv2d`** layer uses a 3x3 kernel (or filter). This is a small window (a matrix of weights) that moves across the input image or the previous feature map.
     - These matrix of weights are learned when training the neural network
-- A 3x3 filter is a common choice because it's large enough to capture basic spatial structures like edges and corners, but small enough to keep computational costs reasonable. It effectively balances detail and computational efficiency.
+    - A 3x3 filter is a common choice because it's large enough to capture basic spatial structures like edges and corners, but small enough to keep computational costs reasonable. It effectively balances detail and computational efficiency.
+
+### Stride
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f87cabf2-8d22-410c-bb4c-b00e5c7c3bac/bca960eb-fbd6-4122-8b2b-26d7743d4d42/Untitled.png)
+
+Controls the number of pixels you skip as you slide the filter across the input. A stride of 1 means the filter moves one pixel at a time, while a stride of 2 skips every other pixel. Adjusting the stride changes the dimensionality of the output feature map.
+
+**Learn more here:** https://medium.com/swlh/convolutional-neural-networks-part-2-padding-and-strided-convolutions-c63c25026eaa
