@@ -4,10 +4,17 @@ import torch.nn as nn
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
 
+    
     def __init__(self, in_channels, out_channels):
+        """
+        Args:
+            in_channels: # of channels in input image. E.g 3 channels for RGB images.
+            out_channels: # of filters applied to input image. Each filter detects different features from input
+        """
         super().__init__()
+        # Sequential model to map out the two 3x3 => conv layers for UNet Architecture 
         self.double_conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
