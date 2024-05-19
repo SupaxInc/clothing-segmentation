@@ -40,8 +40,28 @@ class UNet(nn.Module):
         super(UNet, self).__init__()
         self.downs = nn.ModuleList()
         self.ups = nn.ModuleList()
-        # Pooling layer for down sampling
+        # Pooling layer used for down sampling
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # Downsampling path (encoder)
+        for feature in features:
+            self.downs.append(DoubleConv(in_channels, feature))
+
+        # Bottleneck
+        self.bottleneck = DoubleConv(features[-1], features[-1]*2)
+
+        # Upsampling path (decoder)
+        for feature in reversed(features):
+            # Use bilinear upsampling and a conv layer
+            self.ups.append(
+                nn.Sequential(
+                    nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+                    nn.Conv2d(feature * 2, feature, kernel_size=3, padding=1)
+                )
+            )
+            self.ups.append(DoubleConv(feature*2, feature))
+        
+        self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
     
 
     def forward(self, x):
