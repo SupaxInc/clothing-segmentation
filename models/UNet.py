@@ -19,6 +19,7 @@ class DoubleConv(nn.Module):
             # Bias is set to false since BatchNorm will just cancel it out
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
+            # ReLU activation will apply non-linearity after convolution and maintain it during normalization
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),

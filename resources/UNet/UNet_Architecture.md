@@ -57,6 +57,33 @@ Padding is useful as it prevents a shrinking output feature map which throws awa
 
 **Learn more here:** https://medium.com/swlh/convolutional-neural-networks-part-2-padding-and-strided-convolutions-c63c25026eaa
 
+
+## ReLU Activation Layer
+
+![alt text](activation_functions.png)
+
+**`ReLU`** stands for Rectified Linear Unit, and it is a type of activation function that is commonly used in neural networks, especially in CNNs. The function itself is quite simple:
+
+ReLU(𝑥)=max⁡(0,𝑥), this means that for each input we check the max between x and 0.
+
+In our specific case, it helps apply non-linearity to the linear transformation performed after convolution and helps maintain the non-linearity in the presence of normalized inputs (batch normalization).
+
+**Learn more here:** https://medium.com/@shrutijadon/survey-on-activation-functions-for-deep-learning-9689331ba092
+
+### Importance
+
+1. **Non-linearity**:
+    - Neural networks, without non-linear activation functions like ReLU, would behave just like a single linear transformation, which limits their ability to model complex relationships in data like image classification and object detection.
+2. **Sparse Activation**:
+    - ReLU naturally leads to sparse activation. In any given layer, all the negative activations are set to zero, which means that only a subset of neurons fire at a given time. This sparsity makes the network more efficient and less prone to overfitting.
+3. **Computational Efficiency**:
+    - ReLU is computationally very efficient, both in terms of memory requirements and computational power. The simplicity of the threshold operation (comparing a value to zero) makes it much faster to compute than other non-linear functions like sigmoid or tanh.
+4. **Gradient Flow**:
+    - During backpropagation, ReLU helps with healthy gradient flow in deep networks. Since the gradient of the ReLU function is either 0 (for inputs less than zero) or 1 (for inputs greater than zero), it does not suffer from the vanishing gradient problem as severely as sigmoid or tanh functions. This characteristic allows models to learn faster and achieve better performance.
+5. **Model Performance**:
+    - Empirically, models using ReLU tend to perform better in practice on a variety of tasks compared to those using other activation functions. Its ability to provide a non-saturating non-linearity helps models converge quicker during training.
+
+
 ## Performing Convolution
 
 Convolution is a mathematical operation used primarily in signal processing and also in image processing. In the context of convolutional neural network, you are sliding a filter (matrix of weights) across an input image or previous feature map and computing the dot product of the filter and the local region it covers it.
@@ -104,4 +131,22 @@ In valid convolution, there are problems you’ll run into such as a shrinking o
 
 When convolving a 3x3 filter in a 6x6 input image, the green shaded square will only be slid across once while the yellow shaded square has been convolved multiple times over. Hence, the pixels on the corners or edges are used much less during computation of the output thus throwing away information. The 6x6 input image ends up being a 4x4 input image.
 
-However, using the padding formula, we are able to get a padding to achieve “same convolution”, allowing us to preserve the size of the original image.
+However, using the padding formula, we are able to get a padding to achieve “same convolution”, allowing us to preserve the size of the original image. As shown above, the new 9x9 input image with padding is preserved as the actual 6x6 input image.
+
+
+
+## Channel Paths
+
+Think of each channels in the U-Net architecture being used to capture more features. For example, one channel might become specialized in detecting edges, another in detecting textures, and another in capturing color gradients. As you go deeper into the network and the number of channels increases (64, 128, 256, 512), the kinds of features that the network can detect become more complex and varied.
+
+Even though we begin with an `in_channel` of 3 for RGB image and and `out_channel`  of 5 and it increases during encoding, it does not mean we are adding further categories, instead, it's about enhancing the network's capability to capture and represent more complex and diverse features at various levels of abstraction.
+
+### Down sampling (encoder)
+
+The encoder's downsampling path, enhanced by max pooling, efficiently compresses the input image into a compact feature representation, capturing essential information at multiple scales. In U-Net and similar architectures, this is achieved through two main mechanisms:
+
+1. **Convolutional Layers with Strides**: Each convolutional layer applies filters (or kernels) to the input, creating feature maps that highlight different aspects of the input data. As we go further down the channels, the network learns more complex and abstract features.
+2. **Max Pooling Layers**: These are specifically designed to downsample the feature maps when going further down the channels. 
+    1. It significantly reduces the spatial dimensions of the feature maps at each layer. For example, with a 2x2 pooling size and a stride of 2, the height and width of each feature map are halved. 
+    2. This reduction in size helps decrease the number of computations needed in subsequent layers, which is particularly important as the number of channels increases.
+    3. By reducing the resolution of the feature maps, max pooling also helps in preventing overfitting. The network becomes less sensitive to small variations and noise in the input data, focusing instead on higher-level features that are more robust and generalizable.
