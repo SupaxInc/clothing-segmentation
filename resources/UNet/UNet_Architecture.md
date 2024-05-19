@@ -53,10 +53,55 @@ Controls the number of pixels you skip as you slide the filter across the input.
 
 Adds layers of zeros around the input image to allow the convolution to be applied to bordering elements of the input image. A padding of 1 means adding a one-pixel border on every edge.
 
-Padding is useful as it prevents a shrinking output feature map which throws away information at the edges. See performing convolution below
+Padding is useful as it prevents a shrinking output feature map which throws away information at the edges. See performing a convolution below to understand the problem further.
 
 **Learn more here:** https://medium.com/swlh/convolutional-neural-networks-part-2-padding-and-strided-convolutions-c63c25026eaa
 
 ## Performing Convolution
 
 Convolution is a mathematical operation used primarily in signal processing and also in image processing. In the context of convolutional neural network, you are sliding a filter (matrix of weights) across an input image or previous feature map and computing the dot product of the filter and the local region it covers it.
+
+![alt text](performing_convolution.png)
+
+In the example above, we performed two convolutions by convolving a 3x3 filter across a 6x6 input. The first output is equaled to 0 by convolving the 3x3 filter on the green square and grabbing the dot product. Similarly to the yellow square.
+
+Another key observation is that the output image became smaller and this is due to **valid convolution** (use of no padding). 
+
+The formula for the output size in a valid convolution is: `n-f/s + 1` , where
+
+- `n` is the input size
+- `f` is the filter size
+- `s` is the stride
+
+![alt text](output_images.png)
+
+
+### Valid Convolution
+
+Another key observation is that the output image became smaller and this is due to **valid convolution** (use of no padding). 
+
+The formula for the output size in a valid convolution is: `n-f/s + 1` , where
+
+- `n` is the input size
+- `f` is the (kernel) filter size
+- `s` is the stride
+
+The reduction in size of the input will depend on the kernel size and the stride.
+
+### Same Convolution
+
+In a same convolution type, padding is added to the input so that the output feature map retains the same spatial dimensions (height and width) as the input feature map. 
+
+The formula to achieve a “same convolution” is: `Padding = f-s / 2` , where
+
+- `f` is the filter size
+- `s` is the stride
+- The result you get is the padding you should use to achieve same convolution.
+
+In valid convolution, there are problems you’ll run into such as a shrinking output and throwing away information at the edges. This is shown in the picture below.
+
+ ![alt text](same_convolution.png)
+
+When convolving a 3x3 filter in a 6x6 input image, the green shaded square will only be slid across once while the yellow shaded square has been convolved multiple times over. Hence, the pixels on the corners or edges are used much less during computation of the output thus throwing away information. The 6x6 input image ends up being a 4x4 input image.
+
+However, using the padding formula, we are able to get a padding to achieve “same convolution”, allowing us to preserve the size of the original image.
