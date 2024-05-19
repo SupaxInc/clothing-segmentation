@@ -33,7 +33,7 @@ Specifies the number of channels for the input image. E.g. a standard RGB image 
 
 ### Output Channels
 
-Specifies the number of filters that will be applied to the input image determining the number of feature maps the convolution layer will produce. 
+Specifies the number of filters that will be applied to the input image determining the number of feature maps the convolution layer will produce. E.g. a 1 output channel is a binary image segmentation task that just focuses on object and background or a 5 output channel is a multi-class channel that focuses on multiple categories such as different types of clothing, background, skin, etc.
 
 ### Kernel Size (Filters)
 

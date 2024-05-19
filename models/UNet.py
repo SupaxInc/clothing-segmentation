@@ -7,6 +7,7 @@ class DoubleConv(nn.Module):
     
     def __init__(self, in_channels, out_channels):
         """
+        The double convolution layer used per block in UNet Architecture
         Args:
             in_channels: # of channels in input image. E.g 3 channels for RGB images.
             out_channels: # of filters applied to input image. Each filter detects different features from input
@@ -28,22 +29,19 @@ class DoubleConv(nn.Module):
         return self.double_conv(x)
 
 class UNet(nn.Module):
-    def __init__(self):
+    """
+        Args:
+            in_channels: Begin with 3 for an RGB image.
+            out_channels: Begin with 5 for the categories: shirts, pants, dresses, accessories, shoes
+            features: Feature mapping for downsampling and upsampling in the paths of the UNet architecture
+        """
+    def __init__(self, in_channels = 3, out_channels = 5, features = [64, 128, 256, 512]):
         super(UNet, self).__init__()
-        self.n_channels = 3
-        self.n_classes = 1
-        self.bilinear = True
-
-        self.inc = DoubleConv(3, 64)
-        self.down1 = Down(64, 128)
-        self.down2 = Down(128, 256)
-        self.down3 = Down(256, 512)
-        self.down4 = Down(512, 512)
-        self.up1 = Up(1024, 256, self.bilinear)
-        self.up2 = Up(512, 128, self.bilinear)
-        self.up3 = Up(256, 64, self.bilinear)
-        self.up4 = Up(128, 64, self.bilinear)
-        self.outc = OutConv(64, self.n_classes)
+        self.downs = nn.ModuleList()
+        self.ups = nn.ModuleList()
+        # Pooling layer for down sampling
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+    
 
     def forward(self, x):
         x1 = self.inc(x)
