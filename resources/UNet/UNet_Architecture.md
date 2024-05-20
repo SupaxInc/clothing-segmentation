@@ -179,10 +179,6 @@ Upsampling in the expansive path of U-Net involves increasing the spatial dimens
 
 The choice of upsampling technique (transposed convolution vs. bilinear interpolation) in the decoder can be driven by the specific demands of the segmentation task, balancing between detail recovery and computational efficiency.
 
-After upsampling, the feature map is concatenated with the correspondingly cropped feature map from the downsampling path with the use of **skip connections**, where feature maps from the downsampling path are concatenated with the upsampled feature maps at corresponding levels.
-
-- These connections help restore the contextual details that might be lost during downsampling. They reintegrate the high-resolution features from earlier layers with the upsampled layers, aiding in better localization and detail in the segmentation output.
-
 ---
 
 ### Bottleneck Layer
@@ -207,3 +203,27 @@ This layer's functions include:
 3. **Spatial Size Preservation**: This layer maintains the spatial dimensions of the input, ensuring that the output segmentation map matches the size of the original image, which is essential for accurate, pixel-level segmentation.
 
 The final 1x1 convolution layer is pivotal in bridging the complex internal representations learned by the network with the practical requirements of the segmentation task, efficiently translating feature maps into class-specific segmentation outputs.
+
+
+## Forward Function
+
+The "forward step" or "forward pass" refers to the process by which input data is passed through the network from the first to the last layer to produce an output. This process is crucial as it's where the network applies all the defined operations (like convolutions, activations, pooling, etc.) on the input data to compute the output, typically used during both training and inference phases. 
+
+Here is the full process, pretty much summarizing what we’ve talked about above:
+
+1. **Input Data**:
+    - The forward step begins when the input data (typically an image in the case of U-Net) is fed into the network. For U-Net, this input is often a multi-channel image (such as an RGB image) that needs to be segmented.
+2. **Downsampling Path (Encoder)**:
+    - **Convolution and Activation Layers**: The input data first passes through multiple sets of convolutional layers where filters are applied to extract features. Each convolution is usually followed by a nonlinear activation function (like ReLU) which helps the network learn complex patterns.
+    - **Pooling Layers**: Between the sets of convolutional layers, pooling operations (typically max pooling) reduce the spatial dimensions of the feature maps, focusing the network on the most important features while reducing computational load.
+3. **Bottleneck**:
+    - This is the central part of the network where the deepest features are processed. The bottleneck typically consists of several convolutional layers without pooling, designed to process the most abstract representations of the input data.
+4. **Upsampling Path (Decoder)**:
+    - **Transposed Convolutions or Upsampling**: This phase involves expanding the spatial dimensions of the feature maps. Transposed convolutions or simpler upsampling techniques (like bilinear upsampling) are used to increase the size of the feature maps.
+    - **Concatenation with Skip Connections**: Crucially, the upsampling path often involves concatenating the upsampled features with the correspondingly cropped features from the downsampling path. These skip connections *(the grey arrows in the architecture diagram)* help the network recover spatial details that are lost during the downsampling phase.
+        - During the downsampling process, spatial resolution is reduced, which can lead to a loss of detail. Skip connections help preserve these spatial details by bypassing the deeper layers of the network and directly feeding earlier, high-resolution features to later stages.
+    - **Further Convolutions**: After each upsampling and concatenation, additional convolutions are applied to refine the features and integrate the information from the skip connections.
+5. **Final Convolutional Layer**:
+    - The output from the last upsampling step is passed through a final 1x1 convolutional layer, which adjusts the depth of the feature maps to the number of desired output classes. This layer effectively classifies each pixel in the original input image into one of the classes.
+6. **Output**:
+    - The result of the forward pass is a segmented image where each pixel is classified into one of the output classes. This output can directly correspond to different segments like different types of tissues in medical images or different objects in a scene for general segmentation tasks.

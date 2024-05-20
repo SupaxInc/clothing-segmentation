@@ -90,12 +90,18 @@ class UNet(nn.Module):
         skips = skips[::-1] # Reverse the skip connections to align in upsampling path
 
         # Upsampling path
+            # Skipping by 2 each time as we are doing the up conv and double conv in 1 step
         for i in range(0, len(self.ups), 2):
-            x = self.ups[i](x)
-            skip = skips[i // 2]
+            x = self.ups[i](x) # Upsample (the sequential bilinear sampling) the input tensor's feature map
+            skip = skips[i // 2] # Retrieve corresponding feature map from reversed skip connections
+            
+            # If the upsampled feature map and the skip feature map don't match in shape,
+            # adjust the size of the upsampled feature map to match the skip feature map
             if x.shape != skip.shape:
-                x = TF.interpolate(x, size=skip.shape[2:])
-            x = torch.cat((skip, x), axis=1)
-            x = self.ups[i + 1](x)
+                x = TF.resize(x, size=skip.shape[2:])
+            
+            x = torch.cat((skip, x), axis=1) # Concatenate the skip map with the upsampled map along channel dimension
+            x = self.ups[i + 1](x) # Upsample normally to integrate concatenated feature maps
 
+        # Apply a final convolution to map the features to the number of desired output channels/classes
         return self.final_conv(x)
