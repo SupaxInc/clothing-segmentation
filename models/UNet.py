@@ -108,3 +108,14 @@ class UNet(nn.Module):
 
         # Apply a final convolution to map the features to the number of desired output channels/classes
         return self.final_conv(x)
+
+def testRGB():
+    x = torch.randn((3, 3, 160, 160)) # Random input tensors of a batch of three 160x160 RGB images 
+
+    model = UNet(in_channels=3, out_channels=1)
+    predictions = model(x) # Perform convolutions
+
+    assert predictions.shape == x.shape # Shape should be the same as we are using same convolution
+
+if __name__ == "__main__":
+    testRGB()
