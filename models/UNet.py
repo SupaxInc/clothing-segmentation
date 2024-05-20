@@ -47,6 +47,7 @@ class UNet(nn.Module):
             in_channels = feature
 
         # Bottleneck layer
+            # Connecting the final 512 layer to the bottleneck 1024 layer
         self.bottleneck = DoubleConv(features[-1], features[-1]*2)
 
         # Upsampling path (decoder)
@@ -54,13 +55,16 @@ class UNet(nn.Module):
             # Use bilinear upsampling and a conv layer
             self.ups.append(
                 nn.Sequential(
-                    # Double the size of input feature map
+                    # Double the size of input feature map with bilinear calculations
                     nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
                     nn.Conv2d(feature * 2, feature, kernel_size=3, padding=1)
                 )
             )
             self.ups.append(DoubleConv(feature*2, feature))
         
+        # Final 1x1 conv layer
+            # Adjusts the depth of the output feature maps to match # of desired classes
+            # Essentially matching the initial out_channels to this final layer 
         self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
     
 

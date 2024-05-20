@@ -195,3 +195,17 @@ The bottleneck serves as the critical integration and transition point within th
 3. **Efficient Learning**: The bottleneck focuses the network’s learning capacity on critical features, improving learning efficiency and effectiveness.
 
 This section is pivotal for ensuring that the network not only learns to compress the input data effectively but also sets the stage for accurately reconstructing the detailed segmentation map in the decoder.
+
+---
+
+## Final 1x1 Conv Layer
+
+The final layer often includes a 1x1 convolution that serves as the critical endpoint for producing the output that directly corresponds to the segmentation task. It essentially adjusts the depth of the output feature maps to match the number of desired output classes. For instance, if the segmentation task involves distinguishing between multiple different objects (e.g., different types of clothing in your app), the number of output channels in this layer would equal the number of classes.
+
+This layer's functions include:
+
+1. **Pixel-wise Classification**: Through 1x1 convolutions, the network performs a classification at each pixel, utilizing the deep features extracted and refined through the previous layers to determine the class of each pixel.
+2. **Channel Reduction**: It reduces the channel depth from the potentially large number of channels in the final feature maps of the upsampling path to the number of desired segmentation classes.
+3. **Spatial Size Preservation**: This layer maintains the spatial dimensions of the input, ensuring that the output segmentation map matches the size of the original image, which is essential for accurate, pixel-level segmentation.
+
+The final 1x1 convolution layer is pivotal in bridging the complex internal representations learned by the network with the practical requirements of the segmentation task, efficiently translating feature maps into class-specific segmentation outputs.
