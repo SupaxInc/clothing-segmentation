@@ -104,7 +104,7 @@ Convolution is a mathematical operation used primarily in signal processing and 
 
 In the example above, we performed two convolutions by convolving a 3x3 filter across a 6x6 input. The first output is equaled to 0 by convolving the 3x3 filter on the green square and grabbing the dot product. Similarly to the yellow square. Another key observation is that the output image became smaller and this is due to **valid convolution** (use of no padding). 
 
-In the picture below, it shows how we essentially calculated convolved the 3x3 filter (middle image) to detect a verticle edge within the 6x6 input (left greyscale image). The output feature map (right image) shows the location of the verticle edge where it is marked as 30's from the example above.
+In the picture below, it shows how we essentially convolved the 3x3 filter (middle image) to detect a verticle edge within the 6x6 input (left greyscale image). The output feature map (right image) shows the location of the verticle edge where it is marked as 30's from the example above.
 
 ![alt text](output_images.png)
 

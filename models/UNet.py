@@ -29,13 +29,13 @@ class DoubleConv(nn.Module):
         return self.double_conv(x)
 
 class UNet(nn.Module):
-    """
-    Args:
-        in_channels: Begin with 3 for an RGB image.
-        out_channels: Begin with 5 for the categories: shirts, pants, dresses, accessories, shoes
-        features: Feature mapping for downsampling and upsampling in the paths of the UNet architecture
-    """
     def __init__(self, in_channels = 3, out_channels = 5, features = [64, 128, 256, 512]):
+        """
+        Args:
+            in_channels: Begin with 3 for an RGB image.
+            out_channels: Begin with 5 for the categories: shirts, pants, dresses, accessories, shoes
+            features: Feature mapping for downsampling and upsampling in the paths of the UNet architecture
+        """
         super(UNet, self).__init__()
         self.downs = nn.ModuleList()
         self.ups = nn.ModuleList()
@@ -110,7 +110,7 @@ class UNet(nn.Module):
         return self.final_conv(x)
 
 def testMultiClassRGB():
-    x = torch.randn((3, 3, 160, 160)) # Random input tensors of a batch of three 160x160 RGB images 
+    x = torch.randn((3, 3, 161, 161)) # Random input tensors of a batch of three 161x161 RGB images 
 
     model = UNet(in_channels=3, out_channels=5) # 5 categories/classes
     predictions = model(x) # Perform convolutions
@@ -122,7 +122,7 @@ def testMultiClassRGB():
 
 
 def testBinarySegmentationGrayscale():
-    x = torch.randn((3, 1, 160, 160))
+    x = torch.randn((3, 1, 161, 161))
 
     model = UNet(in_channels=1, out_channels=1)
     predictions = model(x)
