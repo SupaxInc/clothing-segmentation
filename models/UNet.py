@@ -48,7 +48,7 @@ class UNet(nn.Module):
             in_channels = feature
 
         # Bottleneck layer
-            # Connecting the final 512 layer to the bottleneck 1024 layer
+            # Connecting the final 512 layer in downsampling path to the bottleneck 1024 layer
         self.bottleneck = DoubleConv(features[-1], features[-1]*2)
 
         # Upsampling path (decoder)
