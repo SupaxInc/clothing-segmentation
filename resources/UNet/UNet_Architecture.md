@@ -14,7 +14,8 @@
         - Each up sampling is followed by two 3x3 convolutions and ReLU activations.
     4. **Final Layer:**
         - The architecture typically concludes with a 1x1 convolution that maps the final feature maps to the desired number of classes for segmentation.
-<br/>
+
+---
 
 ## The Module
 
@@ -31,19 +32,22 @@ Applies a filter to the input to extract features by sliding over the input spat
 ### Input Channels
 
 Specifies the number of channels for the input image. E.g. a standard RGB image would have 3 channels (red, green, and blue).
-<br/>
+
+---
 
 ### Output Channels
 
 Specifies the number of filters that will be applied to the input image determining the number of feature maps the convolution layer will produce. E.g. a 1 output channel is a binary image segmentation task that just focuses on object and background or a 5 output channel is a multi-class channel that focuses on multiple categories such as different types of clothing, background, skin, etc.
-<br/>
+
+---
 
 ### Kernel Size (Filters)
 
 - Each **`Conv2d`** layer uses a 3x3 kernel (or filter). This is a small window (a matrix of weights) that moves across the input image or the previous feature map.
     - These matrix of weights are learned when training the neural network
     - A 3x3 filter is a common choice because it's large enough to capture basic spatial structures like edges and corners, but small enough to keep computational costs reasonable. It effectively balances detail and computational efficiency.
-<br/>
+
+---
 
 ### Stride
 
@@ -52,7 +56,8 @@ Specifies the number of filters that will be applied to the input image determin
 Controls the number of pixels you skip as you slide the filter across the input. A stride of 1 means the filter moves one pixel at a time, while a stride of 2 skips every other pixel. Adjusting the stride changes the dimensionality of the output feature map.
 
 **Learn more here:** https://medium.com/swlh/convolutional-neural-networks-part-2-padding-and-strided-convolutions-c63c25026eaa
-<br/>
+
+---
 
 ### Padding
 
@@ -61,7 +66,8 @@ Adds layers of zeros around the input image to allow the convolution to be appli
 Padding is useful as it prevents a shrinking output feature map which throws away information at the edges. See performing a convolution below to understand the problem further.
 
 **Learn more here:** https://medium.com/swlh/convolutional-neural-networks-part-2-padding-and-strided-convolutions-c63c25026eaa
-<br/>
+
+---
 
 
 ## ReLU Activation Layer
@@ -120,7 +126,8 @@ The formula for the output size in a valid convolution is: `n-f/s + 1` , where
 - `s` is the stride
 
 The reduction in size of the input will depend on the kernel size and the stride.
-<br/>
+
+---
 
 ### Same Convolution
 
@@ -140,7 +147,7 @@ When convolving a 3x3 filter in a 6x6 input image, the green shaded square will 
 
 However, using the padding formula, we are able to get a padding to achieve “same convolution”, allowing us to preserve the size of the original image. As shown above, the new 9x9 input image with padding is preserved as the actual 6x6 input image.
 
-
+---
 
 ## Channel Paths
 
@@ -157,7 +164,8 @@ The encoder's downsampling path, enhanced by max pooling, efficiently compresses
     1. It significantly reduces the spatial dimensions of the feature maps at each layer. For example, with a 2x2 pooling size and a stride of 2, the height and width of each feature map are halved. 
     2. This reduction in size helps decrease the number of computations needed in subsequent layers, which is particularly important as the number of channels increases.
     3. By reducing the resolution of the feature maps, max pooling also helps in preventing overfitting. The network becomes less sensitive to small variations and noise in the input data, focusing instead on higher-level features that are more robust and generalizable.
-<br/>
+
+---
 
 ### Up sampling (decoder)
 
@@ -175,7 +183,8 @@ The choice of upsampling technique (transposed convolution vs. bilinear interpol
 After upsampling, the feature map is concatenated with the correspondingly cropped feature map from the downsampling path with the use of **skip connections**, where feature maps from the downsampling path are concatenated with the upsampled feature maps at corresponding levels.
 
 - These connections help restore the contextual details that might be lost during downsampling. They reintegrate the high-resolution features from earlier layers with the upsampled layers, aiding in better localization and detail in the segmentation output.
-<br/>
+
+---
 
 ### Bottleneck Layer
 
