@@ -97,6 +97,9 @@ class UNet(nn.Module):
             
             # If the upsampled feature map and the skip feature map don't match in shape,
             # adjust the size of the upsampled feature map to match the skip feature map
+                # This could happen when we downsample with max pool. E.g. 161 x 161 -> 80 x 80
+                # then when we upsample in the expanding path, it may go up to 160 x 160.
+                # If this happens, we wont be able to concat as they need same height and width
             if x.shape != skip.shape:
                 x = TF.resize(x, size=skip.shape[2:])
             
