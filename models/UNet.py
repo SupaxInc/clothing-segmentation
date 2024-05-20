@@ -3,8 +3,6 @@ import torch.nn as nn
 
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
-
-    
     def __init__(self, in_channels, out_channels):
         """
         The double convolution layer used per block in UNet Architecture
@@ -31,11 +29,11 @@ class DoubleConv(nn.Module):
 
 class UNet(nn.Module):
     """
-        Args:
-            in_channels: Begin with 3 for an RGB image.
-            out_channels: Begin with 5 for the categories: shirts, pants, dresses, accessories, shoes
-            features: Feature mapping for downsampling and upsampling in the paths of the UNet architecture
-        """
+    Args:
+        in_channels: Begin with 3 for an RGB image.
+        out_channels: Begin with 5 for the categories: shirts, pants, dresses, accessories, shoes
+        features: Feature mapping for downsampling and upsampling in the paths of the UNet architecture
+    """
     def __init__(self, in_channels = 3, out_channels = 5, features = [64, 128, 256, 512]):
         super(UNet, self).__init__()
         self.downs = nn.ModuleList()
@@ -46,8 +44,9 @@ class UNet(nn.Module):
         # Downsampling path (encoder)
         for feature in features:
             self.downs.append(DoubleConv(in_channels, feature))
+            in_channels = feature
 
-        # Bottleneck
+        # Bottleneck layer
         self.bottleneck = DoubleConv(features[-1], features[-1]*2)
 
         # Upsampling path (decoder)
@@ -55,6 +54,7 @@ class UNet(nn.Module):
             # Use bilinear upsampling and a conv layer
             self.ups.append(
                 nn.Sequential(
+                    # Double the size of input feature map
                     nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
                     nn.Conv2d(feature * 2, feature, kernel_size=3, padding=1)
                 )

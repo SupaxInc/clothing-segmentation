@@ -43,7 +43,7 @@ Specifies the number of filters that will be applied to the input image determin
 
 ### Stride
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f87cabf2-8d22-410c-bb4c-b00e5c7c3bac/bca960eb-fbd6-4122-8b2b-26d7743d4d42/Untitled.png)
+![alt text](strided_convolution.png)
 
 Controls the number of pixels you skip as you slide the filter across the input. A stride of 1 means the filter moves one pixel at a time, while a stride of 2 skips every other pixel. Adjusting the stride changes the dimensionality of the output feature map.
 
@@ -150,3 +150,32 @@ The encoder's downsampling path, enhanced by max pooling, efficiently compresses
     1. It significantly reduces the spatial dimensions of the feature maps at each layer. For example, with a 2x2 pooling size and a stride of 2, the height and width of each feature map are halved. 
     2. This reduction in size helps decrease the number of computations needed in subsequent layers, which is particularly important as the number of channels increases.
     3. By reducing the resolution of the feature maps, max pooling also helps in preventing overfitting. The network becomes less sensitive to small variations and noise in the input data, focusing instead on higher-level features that are more robust and generalizable.
+
+
+### Up sampling (decoder)
+
+Upsampling in the expansive path of U-Net involves increasing the spatial dimensions of the feature maps to ultimately match the original input size, while simultaneously reducing the number of feature channels. It typically uses the following mechanisms:
+
+1. **Transposed Convolutional Layers**:
+    - These layers perform the inverse of convolutional operations, often referred to as deconvolution. Transposed convolutions introduce zeros between pixels in the input feature maps, which are then convolved with a kernel or filter to produce a larger output. They increase the spatial dimensions of the feature maps, aiming to reverse the downsampling effect produced by pooling in the encoder path.
+        - **Learning Capability**: Unlike fixed methods for upsampling, transposed convolutions can learn parameters that help in better reconstructing the image details from the compressed feature representations.
+2. **Bilinear Interpolation (chose this one)**:
+    - Bilinear interpolation is a fixed mathematical method used for upsampling. It calculates the pixel value at a point based on a weighted average of the pixels around it. Bilinear interpolation generally produces smoother results compared to transposed convolution and can be faster since it doesn’t involve learnable parameters.
+        - **Reduction in Artifacts**: Transposed convolutions can sometimes introduce checkerboard artifacts in the output due to uneven overlapping of the convolved pixels. Bilinear interpolation, being a non-learnable method, avoids these artifacts by providing a consistent and regular method for spatial upsampling.
+
+The choice of upsampling technique (transposed convolution vs. bilinear interpolation) in the decoder can be driven by the specific demands of the segmentation task, balancing between detail recovery and computational efficiency.
+
+After upsampling, the feature map is concatenated with the correspondingly cropped feature map from the downsampling path with the use of **skip connections**, where feature maps from the downsampling path are concatenated with the upsampled feature maps at corresponding levels.
+
+- These connections help restore the contextual details that might be lost during downsampling. They reintegrate the high-resolution features from earlier layers with the upsampled layers, aiding in better localization and detail in the segmentation output.
+
+
+### Bottleneck Layer
+
+The bottleneck serves as the critical integration and transition point within the network. Comprising of double convolution layers (could be more), it focuses on further processing the highly compressed feature maps from the encoder. The main functions of the bottleneck include:
+
+1. **Integrating Features**: It combines various abstract features extracted through the encoder, preparing them for effective reconstruction in the decoder.
+2. **Reducing Overfitting**: By compressing the feature information into a compact form, the bottleneck helps minimize the model’s tendency to overfit, ensuring it focuses on essential features.
+3. **Efficient Learning**: The bottleneck focuses the network’s learning capacity on critical features, improving learning efficiency and effectiveness.
+
+This section is pivotal for ensuring that the network not only learns to compress the input data effectively but also sets the stage for accurately reconstructing the detailed segmentation map in the decoder.
