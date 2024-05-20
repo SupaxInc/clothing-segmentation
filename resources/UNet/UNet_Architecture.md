@@ -147,7 +147,6 @@ When convolving a 3x3 filter in a 6x6 input image, the green shaded square will 
 
 However, using the padding formula, we are able to get a padding to achieve “same convolution”, allowing us to preserve the size of the original image. As shown above, the new 9x9 input image with padding is preserved as the actual 6x6 input image.
 
----
 
 ## Channel Paths
 
@@ -160,7 +159,7 @@ Even though we begin with an `in_channel` of 3 for RGB image and and `out_channe
 The encoder's downsampling path, enhanced by max pooling, efficiently compresses the input image into a compact feature representation, capturing essential information at multiple scales. In U-Net and similar architectures, this is achieved through two main mechanisms:
 
 1. **Convolutional Layers with Strides**: Each convolutional layer applies filters (or kernels) to the input, creating feature maps that highlight different aspects of the input data. As we go further down the channels, the network learns more complex and abstract features.
-2. **Max Pooling Layers**: These are specifically designed to downsample the feature maps when going further down the channels. 
+2. **Max Pooling Layers**: These are specifically designed to downsample the feature maps when going further down the channels. (this will be done in the forward step)
     1. It significantly reduces the spatial dimensions of the feature maps at each layer. For example, with a 2x2 pooling size and a stride of 2, the height and width of each feature map are halved. 
     2. This reduction in size helps decrease the number of computations needed in subsequent layers, which is particularly important as the number of channels increases.
     3. By reducing the resolution of the feature maps, max pooling also helps in preventing overfitting. The network becomes less sensitive to small variations and noise in the input data, focusing instead on higher-level features that are more robust and generalizable.
@@ -196,7 +195,6 @@ The bottleneck serves as the critical integration and transition point within th
 
 This section is pivotal for ensuring that the network not only learns to compress the input data effectively but also sets the stage for accurately reconstructing the detailed segmentation map in the decoder.
 
----
 
 ## Final 1x1 Conv Layer
 

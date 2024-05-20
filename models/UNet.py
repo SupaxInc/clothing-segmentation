@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision.transforms.functional as TF
 
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
@@ -67,16 +68,34 @@ class UNet(nn.Module):
             # Essentially matching the initial out_channels to this final layer 
         self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
     
-
     def forward(self, x):
-        x1 = self.inc(x)
-        x2 = self.down1(x1)
-        x3 = self.down2(x2)
-        x4 = self.down3(x3)
-        x5 = self.down4(x4)
-        x = self.up1(x5, x4)
-        x = self.up2(x, x3)
-        x = self.up3(x, x2)
-        x = self.up4(x, x1)
-        logits = self.outc(x)
-        return logits
+        """
+        Forward step/pass is the process by which input data is passed through the network
+        from the first to the last layer to produce an output.
+        Args:
+            x: Input tensor to the network (image that is passed into the model for processing)
+        """
+        skips = []
+
+        # Downsampling path
+            # Begin at the highest resolution channel down to the smallest
+        for down in self.downs:
+            x = down(x) # Applies the double conv to the input tensor
+            skips.append(x) # Saves the output for the skip connection (grey arrows)
+            x = self.pool(x) # Apply the max pooling (downsample) to the feature map 
+
+        # Applies further conv without any downsampling
+        x = self.bottleneck(x)
+
+        skips = skips[::-1] # Reverse the skip connections to align in upsampling path
+
+        # Upsampling path
+        for i in range(0, len(self.ups), 2):
+            x = self.ups[i](x)
+            skip = skips[i // 2]
+            if x.shape != skip.shape:
+                x = TF.interpolate(x, size=skip.shape[2:])
+            x = torch.cat((skip, x), axis=1)
+            x = self.ups[i + 1](x)
+
+        return self.final_conv(x)
