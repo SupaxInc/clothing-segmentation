@@ -1,8 +1,7 @@
 import os
-import torch
+import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
-import torchvision.transforms as transforms
 
 class ClothingCoParsingDataset(Dataset):
     def __init__(self, image_dir, mask_dir, transform=None):
@@ -22,10 +21,10 @@ class ClothingCoParsingDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        image = Image.open(self.image_paths[idx]).convert('RGB')
-        mask = Image.open(self.mask_paths[idx]).convert('L')  # Convert mask to grayscale
+        image = np.array(Image.open(self.image_paths[idx]).convert('RGB'))
+        mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.float32)  # Convert mask to grayscale
 
-        if self.transform:
+        if self.transform is not None:
             image = self.transform(image)
             mask = self.transform(mask)
 

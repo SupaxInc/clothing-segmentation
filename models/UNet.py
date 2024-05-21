@@ -72,6 +72,7 @@ class UNet(nn.Module):
         """
         Forward step/pass is the process by which input data is passed through the network
         from the first to the last layer to produce an output.
+        
         Args:
             x: Input tensor to the network (image that is passed into the model for processing)
         """
