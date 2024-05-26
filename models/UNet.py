@@ -111,7 +111,7 @@ class UNet(nn.Module):
         # Apply a final convolution to map the features to the number of desired output channels/classes
         x = self.final_conv(x)
         
-        # Finally, apply softmax since its a multiclass segmentation
+        # Finally, apply softmax along channel dimension for multiclass segmentations
         return F.softmax(x, dim=1)
 
 def testMultiClassRGB():

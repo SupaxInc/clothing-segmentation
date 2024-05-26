@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 
 class ClothingCoParsingDataset(Dataset):
-    def __init__(self, image_dir, mask_dir, transform=None):
+    def __init__(self, image_dir, mask_dir, num_classes, transform=None):
         """
         Args:
             image_dir (string): Directory with all the images.
@@ -15,6 +15,7 @@ class ClothingCoParsingDataset(Dataset):
         self.image_paths = [os.path.join(image_dir, x) for x in sorted(os.listdir(image_dir)) if x.endswith('.jpg')]
         self.mask_paths = [os.path.join(mask_dir, x) for x in sorted(os.listdir(mask_dir)) if x.endswith('.png')]
 
+        self.num_classes = num_classes
         self.transform = transform
 
     def __len__(self):
@@ -22,12 +23,18 @@ class ClothingCoParsingDataset(Dataset):
 
     def __getitem__(self, idx):
         image = np.array(Image.open(self.image_paths[idx]).convert('RGB')) # Converts PIL image to numpy array, each pixel will be 0 to 255
-        # Masks will be used as class identifiers, it needs to be more precise using floating point numbers
-            # Helps calculations for loss functions and gradients
-        mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.float32)  # Convert to grayscale and float, pixels 0.0 to 255.0 (whiteness)
+        mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.uint8)  # Convert to grayscale, pixels 0 to 255 (whiteness)
 
         if self.transform is not None:
             image = self.transform(image)
             mask = self.transform(mask)
+
+        # One-hot encode mask for multi-class classifications
+            # Transforms categorical integer labels into binary matrix format to delineate which class a pixel belongs to
+            # it needs to be more precise using floating point numbers, helps calculations for loss functions and gradients
+        one_hot_mask = np.eye(self.num_classes, dtype=np.float32)[mask]
+        # Moving the last axis (classes) to the first
+            # E.g. (512, 512, 5), 512 x 512 image with 55 classes -> (5, 512, 512)
+        one_hot_mask = np.moveaxis(one_hot_mask, -1, 0)
 
         return image, mask
