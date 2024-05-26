@@ -198,6 +198,18 @@ This layer's functions include:
 
 The final 1x1 convolution layer is pivotal in bridging the complex internal representations learned by the network with the practical requirements of the segmentation task, efficiently translating feature maps into class-specific segmentation outputs.
 
+### SoftMax Activation
+
+Once we have convolved the final layer with a 1x1 filter, we need to apply a SoftMax activation for multiclass segmentations. It ensures that the output values across all classes for each pixel sum to 1. Each output channel’s value at a pixel will represent the probability that the pixel belongs to one of the classes. In our case, we need to have different classification for different types of clothing. 
+
+Softmax also forces output class probabilities for a pixel to compete with each other, this means that the increasing probability of one class decreases others. This is desirable in a setting where each pixel needs to be classified into one and only one of several categories. 
+
+The Sigmoid function maps the same transformation as Softmax, however, Sigmoid is used for **binary classification** while Softmax is for **multiclass** so it is essentially an extension of the Sigmoid function. 
+
+![Untitled](sigmoid_vs_softmax.png)
+
+**Learn more here:** https://towardsdatascience.com/sigmoid-and-softmax-functions-in-5-minutes-f516c80ea1f9
+
 
 ## Forward Function
 
