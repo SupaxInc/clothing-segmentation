@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.transforms.functional as TF
+import torch.nn.functional as F
 
 class DoubleConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
@@ -108,7 +109,10 @@ class UNet(nn.Module):
             x = self.ups[i + 1](x) # Upsample normally to integrate concatenated feature maps
 
         # Apply a final convolution to map the features to the number of desired output channels/classes
-        return self.final_conv(x)
+        x = self.final_conv(x)
+        
+        # Finally, apply softmax since its a multiclass segmentation
+        return F.softmax(x, dim=1)
 
 def testMultiClassRGB():
     x = torch.randn((3, 3, 161, 161)) # Random input tensors of a batch of three 161x161 RGB images 
