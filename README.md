@@ -2,6 +2,7 @@
 Practicing how to fine-tune NN models designed for image segmentation tasks
 
 # Citations
+Dataset from: 
 ```python
 @inproceedings{yang2014clothing,
   title={Clothing Co-Parsing by Joint Image Segmentation and Labeling},
@@ -11,3 +12,4 @@ Practicing how to fine-tune NN models designed for image segmentation tasks
   organization={IEEE}
 }
 ```
+https://github.com/bearpaw/clothing-co-parsing

@@ -21,8 +21,10 @@ class ClothingCoParsingDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        image = np.array(Image.open(self.image_paths[idx]).convert('RGB'))
-        mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.float32)  # Convert mask to grayscale
+        image = np.array(Image.open(self.image_paths[idx]).convert('RGB')) # Converts PIL image to numpy array, each pixel will be 0 to 255
+        # Masks will be used as class identifiers, it needs to be more precise using floating point numbers
+            # Helps calculations for loss functions and gradients
+        mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.float32)  # Convert to grayscale and float, pixels 0.0 to 255.0 (whiteness)
 
         if self.transform is not None:
             image = self.transform(image)
