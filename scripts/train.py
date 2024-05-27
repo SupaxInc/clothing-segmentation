@@ -30,7 +30,7 @@ VAL_MASK_DIR = "data/validations/masks/"
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
     """
-    One epoch training.
+    Training for one epoch.A batch of data will be processed per epoch.
     Args:
         loader: DataLoader that provides batches of the data (input images and masks) for training
         model: NN model that will be used for training
@@ -88,7 +88,10 @@ def main():
     )
 
     model = UNet(in_channels=3, out_channels=NUM_CLASSES).to(DEVICE)
-    loss_fn = nn.CrossEntropyLoss # Cross Entropy Loss for multi-class classifications
+    # Cross Entropy Loss for multi-class classifications
+        # This will apply both cross-entropy loss and softmax activation in a single step
+        # Helps prevent numerical instability and is a lot more efficient when done in a single step 
+    loss_fn = nn.CrossEntropyLoss() 
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     train_loader, val_loader = get_loaders(
@@ -126,8 +129,6 @@ def main():
         save_predictions_as_imgs(
             val_loader, model, folder="saved_images/", device=DEVICE
         )
-    
-
 
 if __name__ == "__main__":
     main()

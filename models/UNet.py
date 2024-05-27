@@ -109,10 +109,8 @@ class UNet(nn.Module):
             x = self.ups[i + 1](x) # Upsample normally to integrate concatenated feature maps
 
         # Apply a final convolution to map the features to the number of desired output channels/classes
-        x = self.final_conv(x)
-        
-        # Finally, apply softmax along channel dimension for multiclass segmentations
-        return F.softmax(x, dim=1)
+            # No need to apply Softmax here since we are using cross entropy loss when training which already uses softmax activation internally
+        return self.final_conv(x)
 
 def testMultiClassRGB():
     x = torch.randn((3, 3, 161, 161)) # Random input tensors of a batch of three 161x161 RGB images 

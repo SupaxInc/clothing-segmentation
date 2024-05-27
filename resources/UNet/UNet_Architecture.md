@@ -210,6 +210,19 @@ The Sigmoid function maps the same transformation as Softmax, however, Sigmoid i
 
 **Learn more here:** https://towardsdatascience.com/sigmoid-and-softmax-functions-in-5-minutes-f516c80ea1f9
 
+### Cross-Entropy Loss
+
+When we begin training, each epoch will be applied using a loss function called Cross-Entropy Loss. This is a probabilistic loss function that discovers the difference between the predicted probability distribution and the actual distribution (ground truth). 
+
+It can be used in both binary and multi-class classifications. In our case, we will use it for multi-class classification, which will use the categorical cross-entropy loss function. This version of cross-entropy compares the distribution of the predictions (across multiple classes) with the true distribution which is typically a **one-hot encoded vector**.
+
+This loss function benefits our use of Softmax activation as it is often paired with it. When we apply the loss function to our raw scores (logits) from the NN as inputs, it will internally apply the Softmax activation to convert them into probabilities. After applying the Softmax, it will then compute the cross entropy loss between the predicted probabilities and the target labels which should be provided as class indices (not as one-hot encoded vectors). This can be seen in our U-Net model where the forward function is only applying the final conv layer without any Softmax activation.
+
+Combining Softmax and cross-entropy loss into a single operation is beneficial for a couple of reasons:
+
+- **Numerical Stability**: Computing Softmax and then applying cross-entropy can lead to numerical instability due to the manipulation of small numbers (from the exponential operations in sSoftmax). PyTorch’s **`nn.CrossEntropyLoss`** handles this internally in a way that maintains numerical stability.
+- **Efficiency**: Performing these operations together is more efficient than doing them separately, reducing computational overhead and simplifying the code.
+
 
 ## Forward Function
 
