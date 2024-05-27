@@ -13,6 +13,7 @@ from utils import (
     save_predictions_as_imgs,
 )
 
+# TODO: Confirm these hyperparameters don't have possible underfitting or overfitting and are efficient
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 16
@@ -60,6 +61,10 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
         batch.set_postfix(loss=loss.item())
 
 def main():
+    # Train data set transformations (learning phase)
+        # Normalizing pixel values, converting to tensor, and resizing to correct width and height
+        # Adding randomness with rotations and flips to introduce variability and randomness
+            # Helps promote robustness to variations in input data, mirroring a how a model would process new data
     train_transform = A.Compose(
         [
             A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
@@ -74,7 +79,10 @@ def main():
             ToTensorV2(),
         ],
     )
-
+    
+    # Validation data set transformations (evaluation phase)
+        # Normalizing pixel values, converting to tensor, and resizing to correct width and height
+        # No randomness, ensures performance metrics from eval is indicative of how model performs on unseen data
     val_transforms = A.Compose(
         [
             A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
@@ -88,7 +96,7 @@ def main():
     )
 
     model = UNet(in_channels=3, out_channels=NUM_CLASSES).to(DEVICE)
-    # Cross Entropy Loss for multi-class classifications
+    # Categorical Cross Entropy Loss for multi-class classifications
         # This will apply both cross-entropy loss and softmax activation in a single step
         # Helps prevent numerical instability and is a lot more efficient when done in a single step 
     loss_fn = nn.CrossEntropyLoss() 
@@ -112,6 +120,7 @@ def main():
     check_accuracy(val_loader, model, device=DEVICE)
     scaler = torch.cuda.amp.GradScaler()
 
+    # An epoch is one complete pass through the entire dataset
     for epoch in range(NUM_EPOCHS):
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
 

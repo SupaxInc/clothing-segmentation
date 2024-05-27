@@ -33,3 +33,5 @@ labels_path = os.path.abspath(os.path.join(cwd, '../data/annotations/pixel-level
 masks_path = os.path.abspath(os.path.join(cwd, '../data/train/masks/'))
 
 convert_mat_to_png(labels_path, masks_path)
+
+# TODO: Use sklearn.train_test_split to split validation and training datasets

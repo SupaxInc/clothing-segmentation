@@ -9,7 +9,7 @@ class ClothingCoParsingDataset(Dataset):
         Args:
             image_dir (string): Directory with all the images.
             mask_dir (string): Directory with all the masks.
-            transform (callable, optional): Optional transform to be applied on a sample.
+            transform (callable, optional): Optional transform to be applied on a sample. Uses albumentations.
         """
         # Create a list of paths to all .jpg and .mat files within the relevant directories
         self.image_paths = [os.path.join(image_dir, x) for x in sorted(os.listdir(image_dir)) if x.endswith('.jpg')]
@@ -26,8 +26,9 @@ class ClothingCoParsingDataset(Dataset):
         mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.uint8)  # Convert to grayscale, pixels 0 to 255 (whiteness)
 
         if self.transform is not None:
-            image = self.transform(image)
-            mask = self.transform(mask)
+            augmentations = self.transform(image=image, mask=mask)
+            image = augmentations["image"]
+            mask = augmentations["mask"]
 
         # One-hot encode mask for multi-class classifications
             # Transforms categorical integer labels into binary matrix format to delineate which class a pixel belongs to
@@ -37,4 +38,4 @@ class ClothingCoParsingDataset(Dataset):
             # E.g. (512, 512, 5), 512 x 512 image with 55 classes -> (5, 512, 512)
         one_hot_mask = np.moveaxis(one_hot_mask, -1, 0)
 
-        return image, mask
+        return image, one_hot_mask
