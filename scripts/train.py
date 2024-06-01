@@ -136,7 +136,7 @@ def main():
 
         # Print some examples to a folder
         save_predictions_as_imgs(
-            val_loader, model, folder="saved_images/", device=DEVICE
+            val_loader, model, folder="data/images/predictions/", device=DEVICE
         )
 
 if __name__ == "__main__":
