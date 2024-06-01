@@ -66,29 +66,38 @@ def get_loaders(
 
     return train_loader, val_loader
 
-# TODO: Convert this for multi-class classification
-def check_accuracy(loader, model, device="cuda"):
+def check_accuracy(loader, model, num_classes, device="cuda"):
     num_correct = 0
     num_pixels = 0
     dice_score = 0
     model.eval()
 
-    with torch.no_grad():
+    with torch.no_grad(): # Gradient calculation not needed during model eval
         for x, y in loader:
+            # Batch of inputs (x) and targets (y) loaded to the device
             x = x.to(device)
-            y = y.to(device).unsqueeze(1)
-            preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
+            y = y.to(device)
+            
+            outputs = model(x) # Raw scores (logits)
+            preds = torch.argmax(outputs, dim=1) # For each pixel, it selects the class with the highest score (predicted class)
             num_correct += (preds == y).sum()
             num_pixels += torch.numel(preds)
-            dice_score += (2 * (preds * y).sum()) / (
-                (preds + y).sum() + 1e-8
-            )
+
+            # Calculate the dice score for each class and average
+            for class_idx in range(num_classes):
+                pred_i = (preds == class_idx).float()
+                true_i = (y == class_idx).float()
+                intersection = (pred_i * true_i).sum()
+                dice_score += (2 * intersection) / (
+                    pred_i.sum() + true_i.sum() + 1e-8
+                )
+
+    dice_score /= num_classes * len(loader)
 
     print(
-        f"Got {num_correct}/{num_pixels} with acc {num_correct/num_pixels*100:.2f}"
+        f"Got {num_correct}/{num_pixels} with accuary {num_correct/num_pixels*100:.2f}%"
     )
-    print(f"Dice score: {dice_score/len(loader)}")
+    print(f"Average dice score: {dice_score}")
 
     model.train()
 

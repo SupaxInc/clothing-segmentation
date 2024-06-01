@@ -35,7 +35,8 @@ class ClothingCoParsingDataset(Dataset):
             # it needs to be more precise using floating point numbers, helps calculations for loss functions and gradients
         one_hot_mask = np.eye(self.num_classes, dtype=np.float32)[mask]
         # Moving the last axis (classes) to the first
-            # E.g. (512, 512, 5), 512 x 512 image with 55 classes -> (5, 512, 512)
+            # Essentially changing shape to [num_classes, height, width]
+            # E.g. (512, 512, 5), 512 x 512 image with 5 classes -> (5, 512, 512)
         one_hot_mask = np.moveaxis(one_hot_mask, -1, 0)
 
         return image, one_hot_mask

@@ -117,7 +117,7 @@ def main():
     if LOAD_MODEL:
         load_checkpoint(torch.load("my_checkpoint.pth.tar"), model)
     
-    check_accuracy(val_loader, model, device=DEVICE)
+    check_accuracy(val_loader, model, NUM_CLASSES, device=DEVICE)
     scaler = torch.cuda.amp.GradScaler()
 
     # An epoch is one complete pass through the entire dataset
