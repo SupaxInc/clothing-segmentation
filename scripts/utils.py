@@ -1,5 +1,7 @@
 import torch
 import torchvision
+import shutil
+import os
 from ..data.dataset import ClothingCoParsingDataset
 from torch.utils.data import DataLoader
 
@@ -16,6 +18,12 @@ def load_checkpoint(checkpoint, model):
     """
     print("=> Loading checkpoint")
     model.load_state_dict(checkpoint["state_dict"]) # Load the model weights from a checkpoint file
+
+def move_files(files, source, destination):
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+        for f in files:
+            shutil.move(os.path.join(source, f), destination)
 
 # TODO: Ensure that training and validation datasets are processed in pre_processing.py
 def get_loaders(
@@ -123,7 +131,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
     model.train()
 
 def save_predictions_as_imgs(
-    loader, model, folder="data/prediction_images/", device="cuda"
+    loader, model, folder="data/images/predictions", device="cuda"
 ):
     model.eval()
 
