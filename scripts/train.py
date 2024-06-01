@@ -31,7 +31,7 @@ VAL_MASK_DIR = "data/validations/masks/"
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
     """
-    Training for one epoch.A batch of data will be processed per epoch.
+    Training for one epoch. A batch of data will be processed per epoch.
     Args:
         loader: DataLoader that provides batches of the data (input images and masks) for training
         model: NN model that will be used for training
@@ -39,7 +39,7 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
         loss_fn: Measures how well the model performs. Computes discrepancies between predicted outputs and targets (masks)
         scaler: Used for automatic mixed precision (AMP) to accelerate training while maintaining accuracy during forward/backward pass
     """
-    batch = tqdm(loader) # Progress bar for the amount of data
+    batch = tqdm(loader) # Progress bar for the total amount of data
 
 
     for batch_idx, (data, targets) in enumerate(batch):
