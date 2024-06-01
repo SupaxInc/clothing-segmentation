@@ -246,3 +246,26 @@ Here is the full process, pretty much summarizing what we’ve talked about abov
     - The output from the last upsampling step is passed through a final 1x1 convolutional layer, which adjusts the depth of the feature maps to the number of desired output classes. This layer effectively classifies each pixel in the original input image into one of the classes.
 6. **Output**:
     - The result of the forward pass is a segmented image where each pixel is classified into one of the output classes. This output can directly correspond to different segments like different types of tissues in medical images or different objects in a scene for general segmentation tasks.
+
+
+## Model Evaluation Metrics
+The UNet model's performance is evaluated using two primary metrics: **Accuracy** and **Dice Score**. These metrics help us understand how well our model is performing on the segmentation tasks, particularly in terms of identifying and classifying each pixel into the correct class. You can see how this is being done in `scripts/utils.py`.
+
+### **Accuracy**
+
+Accuracy is calculated by comparing the predicted class labels against the true labels across all pixels in the validation dataset. It provides a straightforward measure of how often the model predicts the correct class at each pixel.
+
+### **Dice Score**
+
+We use the Dice Score, also known as the Sørensen-Dice coefficient which is a statistical tool that measures the overlap between the predicted segmentation and the ground truth mask labels. For each class we calculate the Dice Score by finding the ratio of twice the area of overlap (intersection) between the predicted and true masks to the total number of pixels in both the predicted and true masks. 
+
+### **Implementation Details**
+
+During evaluation:
+
+- We pass each batch of images through the model to obtain the raw class scores (logits).
+- The `torch.argmax` function is applied to these logits to determine the predicted class for each pixel.
+- Accuracy is computed by determining the percentage of pixels where the predicted class matches the true class.
+- The Dice Score is calculated for each class individually and then averaged across all classes to provide a comprehensive view of the model's performance across different types of segmentation tasks.
+
+This evaluation process is crucial for tuning our model and ensuring it performs well across various challenging segmentation scenarios.

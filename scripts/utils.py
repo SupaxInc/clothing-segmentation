@@ -91,7 +91,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
             
             outputs = model(x) # Pass the batch of input images to get raw scores (logits)
             preds = torch.argmax(outputs, dim=1) # For each pixel, it selects the class with the highest score (predicted class)
-            num_correct += (preds == y).sum() # How many predicted class labels match the masks
+            num_correct += (preds == y).sum() # How many predicted class labels match the mask labels
             num_pixels += torch.numel(preds) # Total num of preds made (or pixels evaluated)
 
             # Calculate the dice score for each class and average
@@ -105,7 +105,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
 
                 intersection = (pred_i * true_i).sum() # Area where the prediced class and the true masks agree (true positives)
                 
-                # We then measure the overlap between the predicted class and the true mask class
+                # We then measure the overlap between the predicted class and the true mask class using Dice formula
                     # The factor of 2 ensures that the score ranges from 0 (no overlap) to 1 (perfect overlap)
                 dice_score += (2 * intersection) / (
                     # The sum of the predicted class and the true mask class
@@ -113,7 +113,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
                     pred_i.sum() + true_i.sum() + 1e-8
                 )
 
-    dice_score /= num_classes * len(loader)
+    dice_score /= num_classes * len(loader) # Average Dice score over all classes and batches
 
     print(
         f"Got {num_correct}/{num_pixels} with accuary {num_correct/num_pixels*100:.2f}%"
@@ -126,6 +126,7 @@ def save_predictions_as_imgs(
     loader, model, folder="data/prediction_images/", device="cuda"
 ):
     model.eval()
+
     for idx, (x, y) in enumerate(loader):
         x = x.to(device=device)
         with torch.no_grad():
