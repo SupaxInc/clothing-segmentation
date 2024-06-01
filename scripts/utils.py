@@ -101,19 +101,25 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
 
     model.train()
 
-# TODO: Convert this for multi-class classification
 def save_predictions_as_imgs(
-    loader, model, folder="saved_images/", device="cuda"
+    loader, model, folder="data/prediction_images/", device="cuda"
 ):
     model.eval()
     for idx, (x, y) in enumerate(loader):
         x = x.to(device=device)
         with torch.no_grad():
-            preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
+            outputs = model(x)
+            preds = torch.argmax(outputs, dim=1)
+            preds = preds.unsqueeze(1) # Add channel dimention so we can save as image
+        
+        # Save predicted masks and ground truth masks
         torchvision.utils.save_image(
-            preds, f"{folder}/pred_{idx}.png"
+            preds.float() / preds.max(), # Normalize the predicted mask for visualization
+            f"{folder}/pred_{idx}.png"
         )
-        torchvision.utils.save_image(y.unsqueeze(1), f"{folder}{idx}.png")
+        torchvision.utils.save_image(
+            y.unsqueeze(1).float() / y.max(), # Normalize and add channel dimension to ground truth mask for visualization
+            f"{folder}/gt_{idx}.png"
+        )
 
     model.train()
