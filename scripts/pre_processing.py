@@ -44,9 +44,6 @@ def convert_mat_to_png(mat_directory, output_directory):
             annotation = data['groundtruth']
             
             remapped_annotation = remap_annotation_classes(annotation)
-
-            print("Unique values in original annotation:", np.unique(annotation))
-            print("Unique values in remapped annotation:", np.unique(remapped_annotation))
             
             # Convert annotation matrix to an Image
                 # Scale remapped values from 0-5 by 36 to match grayscale value range 0-255 (making it brighter)
