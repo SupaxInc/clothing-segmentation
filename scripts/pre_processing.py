@@ -3,7 +3,28 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from PIL import Image
-from utils import move_files
+from scripts.utils import move_files
+
+CLASS_MAPPING = {
+    0: [0],                                 # Background => [Background]
+    1: [41],                                # Skin => [Skin]
+    2: [54, 4, 5, 13, 14, 24, 51, 55, 22],  # Tops => [Top, Blazer, Blouse, Coat, Dress, Jacket, Shirt, Vest, Hoodie]
+    3: [40, 31, 25, 42, 27],                # Bottoms => [Shorts, Pants, Jeans, Skirt, Leggings]
+    4: [21],                                # Hat => [Hat]
+    # 5 => Ignore/Others/Clothes/Accessories
+}
+
+def remap_annotation_classes(annotation):
+    """
+    Remap the annotation to the new class mapping.
+    """
+    remapped_annotation = np.full(annotation.shape, 5)  # Default to 5 for unmapped classes
+
+    for new, originals in CLASS_MAPPING.items():
+        for original in originals:
+            remapped_annotation[annotation == original] = new
+    
+    return remapped_annotation
 
 def convert_mat_to_png(mat_directory, output_directory):
     """
@@ -21,9 +42,15 @@ def convert_mat_to_png(mat_directory, output_directory):
             mat_path = os.path.join(mat_directory, filename)
             data = scipy.io.loadmat(mat_path)
             annotation = data['groundtruth']
+            
+            remapped_annotation = remap_annotation_classes(annotation)
 
+            print("Unique values in original annotation:", np.unique(annotation))
+            print("Unique values in remapped annotation:", np.unique(remapped_annotation))
+            
             # Convert annotation matrix to an Image
-            img = Image.fromarray(annotation.astype(np.uint8))
+                # Scale remapped values from 0-5 by 36 to match grayscale value range 0-255 (making it brighter)
+            img = Image.fromarray((remapped_annotation * 36).astype(np.uint8))
             img.save(os.path.join(output_directory, filename.replace('.mat', '.png')))
     
 def split_data(base_image_path, base_mask_path, train_size=0.8):
@@ -49,8 +76,8 @@ def split_data(base_image_path, base_mask_path, train_size=0.8):
 
     train_images_path = os.path.join(base_image_path, '../../train/images')
     train_masks_path = os.path.join(base_mask_path, '../../train/masks')
-    val_images_path = os.path.join(base_image_path, '../../validation/images')
-    val_masks_path = os.path.join(base_mask_path, '../../validation/masks')
+    val_images_path = os.path.join(base_image_path, '../../validations/images')
+    val_masks_path = os.path.join(base_mask_path, '../../validations/masks')
 
     move_files(train_images, base_image_path, train_images_path)
     move_files(train_masks, base_mask_path, train_masks_path)
@@ -62,9 +89,9 @@ def main():
 
     # Grab the absolute path for images, annotations, and masks
         # Can customize these paths
-    images_path = os.path.abspath(os.path.join(cwd, '../data/input_images/images/')) 
-    labels_path = os.path.abspath(os.path.join(cwd, '../data/annotations/pixel-level/'))
-    masks_path = os.path.abspath(os.path.join(cwd, '../data/input_images/masks/'))
+    images_path = os.path.join(cwd, 'data/input_images/images/')
+    labels_path = os.path.join(cwd, 'data/annotations/pixel-level/')
+    masks_path = os.path.join(cwd, 'data/input_images/masks/')
 
     # Converts the pixel level annotated mats to pngs
     convert_mat_to_png(labels_path, masks_path)

@@ -2,7 +2,7 @@ import torch
 import torchvision
 import shutil
 import os
-from ..data.dataset import ClothingCoParsingDataset
+from data.dataset import *
 from torch.utils.data import DataLoader
 
 def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
@@ -23,7 +23,7 @@ def move_files(files, source, destination):
         if not os.path.exists(destination):
             os.makedirs(destination)
         for f in files:
-            shutil.move(os.path.join(source, f), destination)
+            shutil.copy(os.path.join(source, f), destination)
 
 def get_loaders(
     train_dir,
@@ -33,6 +33,7 @@ def get_loaders(
     batch_size,
     train_transform,
     val_transform,
+    num_classes,
     num_workers=4,
     pin_memory=True, # If pin_memory true, data loader will copy tensors into CUDA pinned memory before returning them
 ):
@@ -44,6 +45,7 @@ def get_loaders(
     train_ds = ClothingCoParsingDataset(
         image_dir=train_dir,
         mask_dir=train_maskdir,
+        num_classes=num_classes,
         transform=train_transform,
     )
 
@@ -60,6 +62,7 @@ def get_loaders(
     val_ds = ClothingCoParsingDataset(
         image_dir=val_dir,
         mask_dir=val_maskdir,
+        num_classes=num_classes,
         transform=val_transform,
     )
 

@@ -4,8 +4,8 @@ import torch.optim as optim
 import albumentations as A
 from tqdm import tqdm
 from albumentations.pytorch import ToTensorV2
-from models import UNet
-from utils import (
+from models.UNet import *
+from scripts.utils import (
     load_checkpoint,
     save_checkpoint,
     get_loaders,
@@ -40,7 +40,6 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
         scaler: Used for automatic mixed precision (AMP) to accelerate training while maintaining accuracy during forward/backward pass
     """
     batch = tqdm(loader) # Progress bar for the total amount of data
-
 
     for batch_idx, (data, targets) in enumerate(batch):
         data = data.to(device=DEVICE) # Assigning data to appropriate device (CPU or GPU)
@@ -94,7 +93,7 @@ def main():
             ToTensorV2(),
         ],
     )
-
+    
     model = UNet(in_channels=3, out_channels=NUM_CLASSES).to(DEVICE)
     # Categorical Cross Entropy Loss for multi-class classifications
         # This will apply both cross-entropy loss and softmax activation in a single step
@@ -110,6 +109,7 @@ def main():
         BATCH_SIZE,
         train_transform,
         val_transforms,
+        NUM_CLASSES,
         NUM_WORKERS,
         PIN_MEMORY,
     )
@@ -136,7 +136,7 @@ def main():
 
         # Print some examples to a folder
         save_predictions_as_imgs(
-            val_loader, model, folder="data/images/predictions/", device=DEVICE
+            val_loader, model, folder="data/output_images/predictions/", device=DEVICE
         )
 
 if __name__ == "__main__":
