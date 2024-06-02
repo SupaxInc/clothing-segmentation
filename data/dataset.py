@@ -24,13 +24,15 @@ class ClothingCoParsingDataset(Dataset):
     def __getitem__(self, idx):
         image = np.array(Image.open(self.image_paths[idx]).convert('RGB')) # Converts PIL image to numpy array, each pixel will be 0 to 255
         mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.uint8)  # Convert to grayscale, pixels 0 to 255 (whiteness)
+        # Convert scaled mask back to original class labels
+        mask = np.round(mask / 36).astype(np.uint8)
 
         if self.transform is not None:
             augmentations = self.transform(image=image, mask=mask)
             image = augmentations["image"]
             mask = augmentations["mask"]
 
-        # One-hot encode mask for multi-class classifications
+        # One-hot encode mask for multi-class classifications, makes it compatible for cross entropy loss
             # Transforms categorical integer labels into binary matrix format to delineate which class a pixel belongs to
             # it needs to be more precise using floating point numbers, helps calculations for loss functions and gradients
         one_hot_mask = np.eye(self.num_classes, dtype=np.float32)[mask]

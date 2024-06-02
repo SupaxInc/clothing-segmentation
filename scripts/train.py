@@ -132,7 +132,7 @@ def main():
         save_checkpoint(checkpoint)
 
         # Check accuracy
-        check_accuracy(val_loader, model, device=DEVICE)
+        check_accuracy(val_loader, model, NUM_CLASSES, device=DEVICE)
 
         # Print some examples to a folder
         save_predictions_as_imgs(

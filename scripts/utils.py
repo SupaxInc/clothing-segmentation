@@ -97,11 +97,12 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
         for x, y in loader:
             # Batch of inputs (x) and targets (y) loaded to the device
             x = x.to(device) # Input images
-            y = y.to(device) # Target masks
+            y = y.to(device) # Target masks (one-hot encoded)
             
             outputs = model(x) # Pass the batch of input images to get raw scores (logits)
             preds = torch.argmax(outputs, dim=1) # For each pixel, it selects the class with the highest score (predicted class)
-            num_correct += (preds == y).sum() # How many predicted class labels match the mask labels
+            y_incides = torch.argmax(y, dim=1) # Convert one-hot encoded masks back to class indices for comparison
+            num_correct += (preds == y_incides).sum() # How many predicted class labels match the mask labels
             num_pixels += torch.numel(preds) # Total num of preds made (or pixels evaluated)
 
             # Calculate the dice score for each class and average
@@ -111,7 +112,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
                     # Float converts it to a tensor of 0.0 or 1.0. 
                     # This tensor represents all pixels predicted to belong to current class
                 pred_i = (preds == class_idx).float()
-                true_i = (y == class_idx).float()
+                true_i = (y_incides == class_idx).float()
 
                 intersection = (pred_i * true_i).sum() # Area where the prediced class and the true masks agree (true positives)
                 
@@ -126,7 +127,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
     dice_score /= num_classes * len(loader) # Average Dice score over all classes and batches
 
     print(
-        f"Got {num_correct}/{num_pixels} with accuary {num_correct/num_pixels*100:.2f}%"
+        f"Got {num_correct}/{num_pixels} with accuracy {num_correct/num_pixels*100:.2f}%"
     )
     print(f"Average dice score: {dice_score}")
 
@@ -138,10 +139,14 @@ def save_predictions_as_imgs(
     model.eval()
 
     for idx, (x, y) in enumerate(loader):
-        x = x.to(device=device)
+        x = x.to(device)
         with torch.no_grad():
             outputs = model(x)
             preds = torch.argmax(outputs, dim=1)
+
+        # Converting one-hot encoded masks as class indices before saving image
+            # Ensures that saved images represent class labels rather than one-hot encoded vectors, which would not be meaningful as images.
+        y = torch.argmax(y, dim=1)
         
         # Save predicted masks and ground truth masks
         torchvision.utils.save_image(
