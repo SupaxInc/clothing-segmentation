@@ -5,6 +5,7 @@ fonttools==4.51.0
 fsspec==2024.5.0
 intel-openmp==2021.4.0
 Jinja2==3.1.4
+joblib==1.4.2
 kiwisolver==1.4.5
 MarkupSafe==2.1.5
 matplotlib==3.9.0
@@ -17,10 +18,12 @@ packaging==24.0
 pillow==10.3.0
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
+scikit-learn==1.5.0
 scipy==1.13.0
 six==1.16.0
 sympy==1.12
 tbb==2021.12.0
+threadpoolctl==3.5.0
 torch==2.3.0
 torchaudio==2.3.0
 torchvision==0.18.0

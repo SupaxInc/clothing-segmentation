@@ -57,16 +57,20 @@ def split_data(base_image_path, base_mask_path, train_size=0.8):
     move_files(val_images, base_image_path, val_images_path)
     move_files(val_masks, base_mask_path, val_masks_path)
 
-cwd = os.getcwd()
+def main():
+    cwd = os.getcwd()
 
-# Grab the absolute path for images, annotations, and masks
-    # Can customize these paths
-images_path = os.path.abspath(os.path.join(cwd, '../data/input_images/images/')) 
-labels_path = os.path.abspath(os.path.join(cwd, '../data/annotations/pixel-level/'))
-masks_path = os.path.abspath(os.path.join(cwd, '../data/input_images/masks/'))
+    # Grab the absolute path for images, annotations, and masks
+        # Can customize these paths
+    images_path = os.path.abspath(os.path.join(cwd, '../data/input_images/images/')) 
+    labels_path = os.path.abspath(os.path.join(cwd, '../data/annotations/pixel-level/'))
+    masks_path = os.path.abspath(os.path.join(cwd, '../data/input_images/masks/'))
 
-# Converts the pixel level annotated mats to pngs
-convert_mat_to_png(labels_path, masks_path)
+    # Converts the pixel level annotated mats to pngs
+    convert_mat_to_png(labels_path, masks_path)
 
-# Split the data into train and test sets
-split_data(images_path, masks_path)
+    # Split the data into train and test sets
+    split_data(images_path, masks_path)
+
+if __name__ == '__main__':
+    main()

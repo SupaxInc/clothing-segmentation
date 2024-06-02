@@ -25,7 +25,6 @@ def move_files(files, source, destination):
         for f in files:
             shutil.move(os.path.join(source, f), destination)
 
-# TODO: Ensure that training and validation datasets are processed in pre_processing.py
 def get_loaders(
     train_dir,
     train_maskdir,
