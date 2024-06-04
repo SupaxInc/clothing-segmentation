@@ -6,19 +6,20 @@ from PIL import Image
 from scripts.utils import move_files
 
 CLASS_MAPPING = {
-    0: [0],                                 # Background => [Background]
-    1: [41],                                # Skin => [Skin]
-    2: [54, 4, 5, 13, 14, 24, 51, 55, 22],  # Tops => [Top, Blazer, Blouse, Coat, Dress, Jacket, Shirt, Vest, Hoodie]
-    3: [40, 31, 25, 42, 27],                # Bottoms => [Shorts, Pants, Jeans, Skirt, Leggings]
-    4: [21],                                # Hat => [Hat]
-    # 5 => Ignore/Others/Clothes/Accessories
+    0: [0],  # Background => [Background]
+    1: [41],  # Skin => [Skin]
+    2: [19], # Hair => [Hair]
+    3: [4, 5, 6, 8, 11, 13, 14, 22, 24, 26, 35, 38, 46, 48, 49, 50, 51, 54, 55],  # Tops => [Blazer, Blouse, Bodysuit, Bra, Cardigan, Coat, Dress, Hoodie, Jacket, Jumper, Romper, Shirt, Suit, Sweater, Sweatshirt, Swimwear, T-shirt, Top, Vest]
+    4: [25, 27, 30, 31, 40, 42, 53],  # Bottoms => [Jeans, Leggings, Panties, Pants, Shorts, Skirt, Tights]
+    5: [7, 12, 16, 21, 28, 32, 36, 39, 43, 44, 45, 56, 58],  # Footwear => [Boots, Clogs, Flats, Heels, Loafers, Pumps, Sandals, Shoes, Sneakers, Socks, Stockings, Wedges]
+    6: [1, 2, 3, 9, 10, 15, 17, 18, 19, 20, 23, 29, 33, 34, 37, 47, 52, 56, 57],  # Accessories => [Accessories, Bag, Belt, Bracelet, Cape, Earrings, Glasses, Gloves, Hat, Intimate, Necklace, Purse, Ring, Scarf, Sunglasses, Tie, Wallet, Watch]
 }
 
 def remap_annotation_classes(annotation):
     """
     Remap the annotation to the new class mapping.
     """
-    remapped_annotation = np.full(annotation.shape, 5)  # Default to 5 for unmapped classes
+    remapped_annotation = np.zeros_like(annotation)
 
     for new, originals in CLASS_MAPPING.items():
         for original in originals:
@@ -47,8 +48,8 @@ def convert_mat_to_png(mat_directory, output_directory):
             
             # Convert annotation matrix to an Image
                 # Scale remapped values from 0-5 by 36 to match grayscale value range 0-255 (making it brighter)
-            img = Image.fromarray((remapped_annotation * 36).astype(np.uint8))
-            #img.save(os.path.join(output_directory, filename.replace('.mat', '.png')))
+            img = Image.fromarray((remapped_annotation * 43).astype(np.uint8))
+            img.save(os.path.join(output_directory, filename.replace('.mat', '.png')))
     
 def split_data(base_image_path, base_mask_path, train_size=0.8):
     """
