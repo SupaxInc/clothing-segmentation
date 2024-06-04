@@ -14,12 +14,12 @@ from scripts.utils import (
 )
 
 # TODO: Confirm these hyperparameters don't have possible underfitting or overfitting and are efficient
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 NUM_EPOCHS = 50
 NUM_WORKERS = 2
-NUM_CLASSES = 6
+NUM_CLASSES = 7
 IMAGE_HEIGHT = 384
 IMAGE_WIDTH = 256
 PIN_MEMORY = True
@@ -70,6 +70,7 @@ def main():
             A.Rotate(limit=35, p=1.0),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.1),
+            A.RandomBrightnessContrast(p=0.2),
             A.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0],
