@@ -17,7 +17,7 @@ from scripts.utils import (
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 16
-NUM_EPOCHS = 3
+NUM_EPOCHS = 50
 NUM_WORKERS = 2
 NUM_CLASSES = 6
 IMAGE_HEIGHT = 384
@@ -127,7 +127,7 @@ def main():
         # Save model
         checkpoint = {
             "state_dict": model.state_dict(),
-            "optimizer":optimizer.state_dict(),
+            "optimizer": optimizer.state_dict(),
         }
         save_checkpoint(checkpoint)
 

@@ -48,7 +48,7 @@ def convert_mat_to_png(mat_directory, output_directory):
             # Convert annotation matrix to an Image
                 # Scale remapped values from 0-5 by 36 to match grayscale value range 0-255 (making it brighter)
             img = Image.fromarray((remapped_annotation * 36).astype(np.uint8))
-            img.save(os.path.join(output_directory, filename.replace('.mat', '.png')))
+            #img.save(os.path.join(output_directory, filename.replace('.mat', '.png')))
     
 def split_data(base_image_path, base_mask_path, train_size=0.8):
     """
@@ -66,7 +66,7 @@ def split_data(base_image_path, base_mask_path, train_size=0.8):
     image_files.sort()
     mask_files.sort()
 
-    # Split the data into train and test sets
+    # Split the data into train and validations sets
     train_images, val_images, train_masks, val_masks = train_test_split(
         image_files, mask_files, train_size=train_size, random_state=42
     )
