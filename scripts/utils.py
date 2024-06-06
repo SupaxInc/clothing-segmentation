@@ -2,6 +2,7 @@ import torch
 import torchvision
 import shutil
 import os
+import torch.nn.functional as F
 from data.dataset import *
 from torch.utils.data import DataLoader
 
