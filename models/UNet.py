@@ -24,6 +24,7 @@ class DoubleConv(nn.Module):
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5)  # Add dropout with 50% probability
         )
 
     def forward(self, x):
