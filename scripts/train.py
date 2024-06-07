@@ -102,7 +102,6 @@ def main():
         # Helps prevent numerical instability and is a lot more efficient when done in a single step 
     loss_fn = nn.CrossEntropyLoss() 
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, verbose=True)
 
     train_loader, val_loader = get_loaders(
         TRAIN_IMG_DIR,
@@ -134,11 +133,7 @@ def main():
         }
         save_checkpoint(checkpoint)
 
-        # Check accuracy
-        val_loss = check_accuracy(val_loader, model, NUM_CLASSES, device=DEVICE)
-
-        # Step the scheduler with the current epoch's validation loss
-        scheduler.step(val_loss)
+        check_accuracy(val_loader, model, NUM_CLASSES, device=DEVICE)
 
         # Print some examples to a folder
         save_predictions_as_imgs(

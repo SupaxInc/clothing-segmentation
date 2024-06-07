@@ -2,7 +2,6 @@ import torch
 import torchvision
 import shutil
 import os
-import torch.nn.functional as F
 from data.dataset import *
 from torch.utils.data import DataLoader
 
@@ -102,8 +101,8 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
             
             outputs = model(x) # Pass the batch of input images to get raw scores (logits)
             preds = torch.argmax(outputs, dim=1) # For each pixel, it selects the class with the highest score (predicted class)
-            y_incides = torch.argmax(y, dim=1) # Convert one-hot encoded masks back to class indices for comparison
-            num_correct += (preds == y_incides).sum() # How many predicted class labels match the mask labels
+            y_indices = torch.argmax(y, dim=1) # Convert one-hot encoded masks back to class indices for comparison
+            num_correct += (preds == y_indices).sum() # How many predicted class labels match the mask labels
             num_pixels += torch.numel(preds) # Total num of preds made (or pixels evaluated)
 
             # Calculate the dice score for each class and average
@@ -113,7 +112,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
                     # Float converts it to a tensor of 0.0 or 1.0. 
                     # This tensor represents all pixels predicted to belong to current class
                 pred_i = (preds == class_idx).float()
-                true_i = (y_incides == class_idx).float()
+                true_i = (y_indices == class_idx).float()
 
                 intersection = (pred_i * true_i).sum() # Area where the prediced class and the true masks agree (true positives)
                 
