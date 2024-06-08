@@ -2,6 +2,7 @@ import torch
 import torchvision
 import shutil
 import os
+import torch.nn.functional as F
 from data.dataset import *
 from torch.utils.data import DataLoader
 
@@ -90,6 +91,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
     num_correct = 0
     num_pixels = 0
     dice_score = 0
+    total_loss = 0
 
     model.eval() # Set model to evaluation mode
 
@@ -102,8 +104,12 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
             outputs = model(x) # Pass the batch of input images to get raw scores (logits)
             preds = torch.argmax(outputs, dim=1) # For each pixel, it selects the class with the highest score (predicted class)
             y_indices = torch.argmax(y, dim=1) # Convert one-hot encoded masks back to class indices for comparison
+
             num_correct += (preds == y_indices).sum() # How many predicted class labels match the mask labels
             num_pixels += torch.numel(preds) # Total num of preds made (or pixels evaluated)
+
+            loss = F.cross_entropy(outputs, y_indices, reduction='mean')
+            total_loss += loss.item()
 
             # Calculate the dice score for each class and average
                 # The dice score is a measure of overlap between the predicted and true masks, averaged over all classes.
@@ -125,13 +131,16 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
                 )
 
     dice_score /= num_classes * len(loader) # Average Dice score over all classes and batches
+    avg_loss = total_loss / len(loader)
 
     print(
         f"Got {num_correct}/{num_pixels} with accuracy {num_correct/num_pixels*100:.2f}%"
     )
     print(f"Average dice score: {dice_score}")
+    print(f"Average validation loss: {avg_loss}")
 
     model.train()
+    return avg_loss
 
 def save_predictions_as_imgs(
     loader, model, folder="data/images/predictions", device="cuda"

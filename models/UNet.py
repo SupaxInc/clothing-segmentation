@@ -60,7 +60,8 @@ class UNet(nn.Module):
                 nn.Sequential(
                     # Double the size of input feature map with bilinear calculations
                     nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-                    nn.Conv2d(feature * 2, feature, kernel_size=3, padding=1)
+                    nn.Conv2d(feature * 2, feature, kernel_size=3, padding=1),
+                    nn.Dropout(p=0.5)
                 )
             )
             self.ups.append(DoubleConv(feature*2, feature))
