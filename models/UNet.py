@@ -24,7 +24,7 @@ class DoubleConv(nn.Module):
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5)  # Add dropout with 50% probability
+            nn.Dropout(p=0.2)  # Add dropout with 50% probability
         )
 
     def forward(self, x):
@@ -61,7 +61,7 @@ class UNet(nn.Module):
                     # Double the size of input feature map with bilinear calculations
                     nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
                     nn.Conv2d(feature * 2, feature, kernel_size=3, padding=1),
-                    nn.Dropout(p=0.5)
+                    nn.Dropout(p=0.2)
                 )
             )
             self.ups.append(DoubleConv(feature*2, feature))

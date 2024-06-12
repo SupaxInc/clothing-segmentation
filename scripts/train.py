@@ -17,7 +17,7 @@ from scripts.utils import (
 LEARNING_RATE = 1e-3
 MIN_LEARNING_RATE = 1e-06
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
+BATCH_SIZE = 24
 NUM_EPOCHS = 50
 NUM_WORKERS = 2
 NUM_CLASSES = 7
@@ -72,7 +72,6 @@ def main():
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.1),
             A.RandomBrightnessContrast(brightness_limit=0.15, contrast_limit=0.15, p=0.2),
-            A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.5),
             A.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0],
@@ -103,7 +102,7 @@ def main():
         # Helps prevent numerical instability and is a lot more efficient when done in a single step 
     loss_fn = nn.CrossEntropyLoss() 
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, patience=5, verbose=True, min_lr = MIN_LEARNING_RATE)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, patience=10, verbose=True, min_lr = MIN_LEARNING_RATE)
 
     train_loader, val_loader = get_loaders(
         TRAIN_IMG_DIR,
