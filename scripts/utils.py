@@ -188,14 +188,16 @@ def show_result(model, x, y, title='Result', save_file=False, save_file_name='sh
     preds = preds.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
     y = y.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
 
+    # Just incase, move image tensor to CPU since matplotlib does not support GPU tensors
+    # Change shape from [B, H, W, C] to [H, W, C] for RGB
+    x_cpu = x.cpu().numpy().transpose(1, 2, 0)
+
     fig = plt.figure(figsize=(12, 5))
     plt.suptitle(title, fontsize=25)
 
     # For image plot
     plt.subplot(1, 4, 1)
-    # Just incase, move tensor to CPU since matplotlib does not support GPU tensors
-    # Change shape from [H, W, C] to [C, H, W] for RGB
-    plt.imshow(x.cpu().numpy().transpose(1, 2, 0))
+    plt.imshow(x_cpu)
     plt.title('Image')
 
     # For ground truth plot
@@ -210,7 +212,7 @@ def show_result(model, x, y, title='Result', save_file=False, save_file_name='sh
 
     # For overlay plot that contains image and mask
     plt.subplot(1, 4, 4)
-    plt.imshow(x.cpu().numpy().transpose(1, 2, 0))
+    plt.imshow(x_cpu)
     # Create a masked array where the mask is applied to locations where the prediction is 0 (background)
     masked_imclass = np.ma.masked_where(preds.cpu().numpy() == 0, preds.cpu().numpy())
     plt.imshow(masked_imclass, alpha=0.4, cmap='jet')
