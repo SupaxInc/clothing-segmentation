@@ -182,15 +182,17 @@ def show_result(model, x, y, title='Result', save_file=False, save_file_name='sh
         outputs = model(x) # [B, C, H, W]
         preds = torch.argmax(outputs, dim=1) # [B, H, W]
 
-    y = torch.argmax(y, dim=1) # [num_classes, H, W] -> [B, H, W]
+    y = torch.argmax(y, dim=1) # [B, num_classes, H, W] -> [B, H, W]
+    print(x.shape)
+    print(y.shape)
 
-    # Convert pred images and masks to proper shape for matplotlib
+    # Convert pred image and mask to proper shape for matplotlib
     preds = preds.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
     y = y.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
 
+    # Convert input image to proper shape for matplot lib
     # Just incase, move image tensor to CPU since matplotlib does not support GPU tensors
-    # Change shape from [B, H, W, C] to [H, W, C] for RGB
-    x_cpu = x.cpu().numpy().transpose(1, 2, 0)
+    x_cpu = x.cpu().numpy().squeeze(0).transpose(1, 2, 0) # Change shape from [B, C, H, W] -> [C, H, W] -> [H, W, C] for RGB
 
     fig = plt.figure(figsize=(12, 5))
     plt.suptitle(title, fontsize=25)
