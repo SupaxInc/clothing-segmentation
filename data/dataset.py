@@ -40,5 +40,6 @@ class ClothingCoParsingDataset(Dataset):
             # Essentially changing shape to [num_classes, height, width]
             # E.g. (512, 512, 5), 512 x 512 image with 5 classes -> (5, 512, 512)
         one_hot_mask = np.moveaxis(one_hot_mask, -1, 0)
-
+        
+        # TODO: Possible bug here since image is a tensor and mask is a numpy array
         return image, one_hot_mask
