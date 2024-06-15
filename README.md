@@ -1,6 +1,8 @@
 # clothing-segmentation
 Practicing how to fine-tune NN models designed for image segmentation tasks
 
+![alt text](resources/UNet/result.png)
+
 # Citations
 Dataset from: 
 ```python
@@ -13,3 +15,6 @@ Dataset from:
 }
 ```
 https://github.com/bearpaw/clothing-co-parsing
+
+References code from:
+https://github.com/IzPerfect/Clothing-Segmentation/tree/master
