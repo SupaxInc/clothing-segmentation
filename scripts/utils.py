@@ -1,5 +1,7 @@
 import torch
 import torchvision
+import matplotlib.pyplot as plt
+import numpy as np
 import shutil
 import os
 import torch.nn.functional as F
@@ -171,3 +173,53 @@ def save_predictions_as_imgs(
         )
 
     model.train()
+
+def show_result(model, x, y, title='Result', save_file=False, save_file_name='show_result', device="cuda"):
+    model.eval()
+    
+    x = x.to(device)
+    with torch.no_grad():
+        outputs = model(x) # [B, C, H, W]
+        preds = torch.argmax(outputs, dim=1) # [B, H, W]
+
+    y = torch.argmax(y, dim=1) # [num_classes, H, W] -> [B, H, W]
+
+    # Convert pred images and masks to proper shape for matplotlib
+    preds = preds.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
+    y = y.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
+
+    fig = plt.figure(figsize=(12, 5))
+    plt.suptitle(title, fontsize=25)
+
+    # For image plot
+    plt.subplot(1, 4, 1)
+    # Just incase, move tensor to CPU since matplotlib does not support GPU tensors
+    # Change shape from [H, W, C] to [C, H, W] for RGB
+    plt.imshow(x.cpu().numpy().transpose(1, 2, 0))
+    plt.title('Image')
+
+    # For ground truth plot
+    plt.subplot(1, 4, 2)
+    plt.imshow(y.cpu().numpy(), cmap='gray') # Change mask to a numpy array and visualized as gray scale
+    plt.title('Ground truth')
+
+    # For prediction plot
+    plt.subplot(1, 4, 3)
+    plt.imshow(preds.cpu().numpy(), cmap='gray')
+    plt.title('Prediction')
+
+    # For overlay plot that contains image and mask
+    plt.subplot(1, 4, 4)
+    plt.imshow(x.cpu().numpy().transpose(1, 2, 0))
+    # Create a masked array where the mask is applied to locations where the prediction is 0 (background)
+    masked_imclass = np.ma.masked_where(preds.cpu().numpy() == 0, preds.cpu().numpy())
+    plt.imshow(masked_imclass, alpha=0.4, cmap='jet')
+    plt.title('Overlay')
+
+    plt.show()
+
+    if save_file:
+        save_dir = 'results/show_result/'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        fig.savefig(save_dir + save_file_name)
