@@ -15,3 +15,12 @@ TRAIN_IMG_DIR = "data/train/images/"
 TRAIN_MASK_DIR = "data/train/masks/"
 VAL_IMG_DIR = "data/validations/images/"
 VAL_MASK_DIR = "data/validations/masks/"
+CLASS_MAPPING = {
+    0: [0],  # Background => [Background]
+    1: [41],  # Skin => [Skin]
+    2: [19], # Hair => [Hair]
+    3: [4, 5, 6, 8, 11, 13, 14, 22, 24, 26, 35, 38, 46, 48, 49, 50, 51, 54, 55],  # Tops => [Blazer, Blouse, Bodysuit, Bra, Cardigan, Coat, Dress, Hoodie, Jacket, Jumper, Romper, Shirt, Suit, Sweater, Sweatshirt, Swimwear, T-shirt, Top, Vest]
+    4: [25, 27, 30, 31, 40, 42, 53],  # Bottoms => [Jeans, Leggings, Panties, Pants, Shorts, Skirt, Tights]
+    5: [7, 12, 16, 21, 28, 32, 36, 39, 43, 44, 45, 56, 58],  # Footwear => [Boots, Clogs, Flats, Heels, Loafers, Pumps, Sandals, Shoes, Sneakers, Socks, Stockings, Wedges]
+    6: [1, 2, 3, 9, 10, 15, 17, 18, 19, 20, 23, 29, 33, 34, 37, 47, 52, 56, 57],  # Accessories => [Accessories, Bag, Belt, Bracelet, Cape, Earrings, Glasses, Gloves, Hat, Intimate, Necklace, Purse, Ring, Scarf, Sunglasses, Tie, Wallet, Watch]
+}
