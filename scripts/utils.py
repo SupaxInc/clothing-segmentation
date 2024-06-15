@@ -183,8 +183,6 @@ def show_result(model, x, y, title='Result', save_file=False, save_file_name='sh
         preds = torch.argmax(outputs, dim=1) # [B, H, W]
 
     y = torch.argmax(y, dim=1) # [B, num_classes, H, W] -> [B, H, W]
-    print(x.shape)
-    print(y.shape)
 
     # Convert pred image and mask to proper shape for matplotlib
     preds = preds.squeeze(0).unsqueeze(2) # [B, H, W] -> [H, W, 1]
