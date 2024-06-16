@@ -37,6 +37,7 @@ def convert_mat_to_png(mat_directory, output_directory):
             
             remapped_annotation = remap_annotation_classes(annotation)
             
+            # TODO: Change this so our mask is RGB instead of grayscale
             # Convert annotation matrix to an Image
                 # Scale remapped values from 0-5 by 36 to match grayscale value range 0-255 (making it brighter)
             img = Image.fromarray((remapped_annotation * 43).astype(np.uint8))

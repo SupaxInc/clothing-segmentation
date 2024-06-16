@@ -216,7 +216,7 @@ def show_result(model, x, y, title='Result', save_file=False, save_file_name='sh
     # Create a masked array where the mask is applied to locations where the prediction is 0 (background)
     masked_imclass = np.ma.masked_where(preds.cpu().numpy() == 0, preds.cpu().numpy())
     plt.imshow(masked_imclass, alpha=0.4, cmap='jet')
-    plt.title('Overlay')
+    plt.title('Prediction over Image')
 
     plt.show()
 
