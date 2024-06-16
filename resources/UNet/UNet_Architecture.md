@@ -269,3 +269,39 @@ During evaluation:
 - The Dice Score is calculated for each class individually and then averaged across all classes to provide a comprehensive view of the model's performance across different types of segmentation tasks.
 
 This evaluation process is crucial for tuning our model and ensuring it performs well across various challenging segmentation scenarios.
+
+## Training
+
+The `train.py` script is a crucial component of the training process for the U-Net model, designed for image segmentation tasks. This script does the following:
+
+1. **Data Loading**:
+    - The script utilizes PyTorch's `DataLoader` to batch and shuffle the input data, ensuring that each training iteration receives a different subset of the dataset. This helps in generalizing the model better.
+    - The data transformations (augmentations) are applied to the training dataset to introduce variability, which helps in making the model robust to different input variations.
+
+2. **Model Training**:
+    - The core of the script is the `train_fn` function, where the actual training steps occur. This function takes the model, optimizer, loss function, and data loader as inputs.
+    - For each batch from the data loader, the script performs a forward pass (calculating the model's predictions), computes the loss, and then performs a backward pass to update the model's weights.
+
+3. **Automatic Mixed Precision (AMP)**:
+    - The script uses PyTorch's AMP to accelerate training while maintaining the accuracy of computations. This is handled by the `scaler` which scales the loss to prevent small gradients from flushing to zero.
+
+4. **Loss Computation and Score Calculation**:
+    - The loss function used is the `CrossEntropyLoss`, which combines softmax activation and cross-entropy loss in a single function. This is computationally efficient and numerically stable.
+    - The loss is calculated by comparing the model's predictions (logits) with the true labels (masks). Specifically, the `CrossEntropyLoss` function computes the negative log likelihood of the correct class, which has been softmaxed. This computation is crucial as it directly impacts the gradients used for updating the model weights.
+    - After computing the loss, the `torch.argmax` function is applied to the logits to extract the class with the highest probability for each pixel, effectively converting the logits to final class predictions. To illustrate, consider logits output `[1.2, 0.1, -0.5]` for a pixel; applying softmax gives `[0.7, 0.2, 0.1]`, indicating probabilities for each class. The `torch.argmax` function then selects the index of the maximum value, which is `0` in this case, identifying the first class as the prediction for this pixel. This step is essential for evaluating the model's performance during training and validation.
+
+5. **Optimizer and Scheduler**:
+    - An Adam optimizer is used for adjusting the weights based on the computed gradients.
+    - A learning rate scheduler reduces the learning rate when the validation loss plateaus, helping in fine-tuning the model in later stages of training.
+
+6. **Model Evaluation**:
+    - The script periodically evaluates the model on a validation set to monitor its performance on unseen data.
+    - Metrics such as accuracy and Dice score are computed to assess the quality of the segmentation. Accuracy is calculated by comparing the predicted class labels against the true labels across all pixels in the validation dataset. The Dice Score is calculated by finding the ratio of twice the area of overlap (intersection) between the predicted and true masks to the total number of pixels in both the predicted and true masks. This provides a measure of how well the predicted segmentation matches the ground truth.
+
+7. **Tensor Management**:
+    - All tensors are moved to the appropriate device (CPU or GPU) to ensure efficient computation.
+    - Tensors representing images and masks are properly reshaped and normalized to suit the model's requirements.
+
+### Summary
+
+The `train.py` script is a comprehensive framework for training the U-Net model on segmentation tasks. It efficiently handles data loading, model updates, and performance evaluation, ensuring that the model learns to segment images accurately. The use of AMP and a learning rate scheduler further optimizes the training process, making it faster and more responsive to changes in training dynamics.
