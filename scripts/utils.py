@@ -234,8 +234,7 @@ def show_segmentation(model, x, title='Class Segmentation', save_file=False, sav
         preds = torch.argmax(outputs, dim=1)  # [B, H, W]
 
     # Convert input image to proper shape for matplotlib
-    x_cpu = x.cpu().numpy().squeeze(0).transpose(1, 2, 0)  # [H, W, C] for RGB
-    print(x_cpu.shape)
+    x_cpu = x.cpu().numpy().squeeze(0).transpose(1, 2, 0)  # [H, W, C = 3 for RGB] 
 
     fig, axes = plt.subplots(2, 4, figsize=(20, 10))
     fig.suptitle(title, fontsize=25)
@@ -251,13 +250,19 @@ def show_segmentation(model, x, title='Class Segmentation', save_file=False, sav
         # Calculate the row and column for the subplot. +1 because 0,0 is taken by original image
         row, col = divmod(i+1, 4)
         
-        # Create a masked array where True values are where the prediction is not equal to the current class
-        # This effectively highlights only the current class
-        masked_class = np.ma.masked_where(preds.cpu().numpy().squeeze(0) != i, 
-                                            np.ones_like(preds.cpu().numpy().squeeze(0)))
+        # Create a mask where True values are where the prediction is equal to the current class
+            # Converts to numpy and removes the batch dimension from preds
+        mask = preds.cpu().numpy().squeeze(0) == i
         
-        # Plot the masked array on the corresponding subplot
-        axes[row, col].imshow(masked_class, alpha=1)
+        # Create a copy of the original image
+        masked_class = x_cpu.copy()
+        
+        # Apply the mask to the image copy
+            # ~mask selects all pixels that are not part of the current class, so we set those that are False pixel values to True
+        masked_class[~mask] = [0, 0, 0]  # Allows us to set non-class pixels to black
+        
+        # Plot the masked image on the corresponding subplot
+        axes[row, col].imshow(masked_class)
         axes[row, col].set_title(f'Class {i}: {CLASS_MAPPING_NAMING[class_id]}')
         axes[row, col].axis('off')
 
