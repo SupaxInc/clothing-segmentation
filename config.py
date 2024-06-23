@@ -24,3 +24,12 @@ CLASS_MAPPING = {
     5: [7, 12, 16, 21, 28, 32, 36, 39, 43, 44, 45, 56, 58],  # Footwear => [Boots, Clogs, Flats, Heels, Loafers, Pumps, Sandals, Shoes, Sneakers, Socks, Stockings, Wedges]
     6: [1, 2, 3, 9, 10, 15, 17, 18, 19, 20, 23, 29, 33, 34, 37, 47, 52, 56, 57],  # Accessories => [Accessories, Bag, Belt, Bracelet, Cape, Earrings, Glasses, Gloves, Hat, Intimate, Necklace, Purse, Ring, Scarf, Sunglasses, Tie, Wallet, Watch]
 }
+CLASS_MAPPING_NAMING = {
+    0: "Background",
+    1: "Skin",
+    2: "Hair",
+    3: "Tops",
+    4: "Bottoms",
+    5: "Footwear",
+    6: "Accessories"
+}

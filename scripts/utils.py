@@ -5,6 +5,7 @@ import numpy as np
 import shutil
 import os
 import torch.nn.functional as F
+from config import (CLASS_MAPPING, CLASS_MAPPING_NAMING)
 from data.dataset import *
 from torch.utils.data import DataLoader
 
@@ -225,3 +226,46 @@ def show_result(model, x, y, title='Result', save_file=False, save_file_name='sh
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         fig.savefig(save_dir + save_file_name)
+
+def show_segmentation(model, x, title='Class Segmentation', save_file=False, save_file_name='segmentation', device="cuda"):
+    x = x.to(device)
+    with torch.no_grad():
+        outputs = model(x)  # [B, C, H, W]
+        preds = torch.argmax(outputs, dim=1)  # [B, H, W]
+
+    # Convert input image to proper shape for matplotlib
+    x_cpu = x.cpu().numpy().squeeze(0).transpose(1, 2, 0)  # [H, W, C] for RGB
+    print(x_cpu.shape)
+
+    fig, axes = plt.subplots(2, 4, figsize=(20, 10))
+    fig.suptitle(title, fontsize=25)
+
+    # Plot original image
+    axes[0, 0].imshow(x_cpu)
+    axes[0, 0].set_title('Original Image')
+    axes[0, 0].imshow(x_cpu)
+    axes[0, 0].axis('off') # Remove the axis ticks and labels for a cleaner look
+    
+    # Plot each class segmentation
+    for i, (class_id, _) in enumerate(CLASS_MAPPING.items()):
+        # Calculate the row and column for the subplot. +1 because 0,0 is taken by original image
+        row, col = divmod(i+1, 4)
+        
+        # Create a masked array where True values are where the prediction is not equal to the current class
+        # This effectively highlights only the current class
+        masked_class = np.ma.masked_where(preds.cpu().numpy().squeeze(0) != i, 
+                                            np.ones_like(preds.cpu().numpy().squeeze(0)))
+        
+        # Plot the masked array on the corresponding subplot
+        axes[row, col].imshow(masked_class, alpha=1)
+        axes[row, col].set_title(f'Class {i}: {CLASS_MAPPING_NAMING[class_id]}')
+        axes[row, col].axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+    if save_file:
+        save_dir = 'results/show_result/'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        fig.savefig(os.path.join(save_dir, save_file_name))
