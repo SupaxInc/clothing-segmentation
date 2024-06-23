@@ -3,6 +3,8 @@ import numpy as np
 from torch.utils.data import Dataset
 from PIL import Image
 
+# TODO: Hair and accessories needs work, does not get classified
+
 class ClothingCoParsingDataset(Dataset):
     def __init__(self, image_dir, mask_dir, num_classes, transform=None):
         """

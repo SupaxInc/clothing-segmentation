@@ -30,6 +30,8 @@ from config import (
     VAL_MASK_DIR,
 )
 
+# TODO: Hair and accessories needs work, does not get classified
+
 def train_fn(loader, model, optimizer, loss_fn, scaler):
     """
     Training for one epoch. A batch of data will be processed per epoch.
