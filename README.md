@@ -28,13 +28,13 @@ Follow these steps to run this project on your local machine:
 
 6. Run the pre-processing script:
    ```
-   python -m scripts.pre_processing.py
+   python -m scripts.pre_processing
    ```
    This will create masks in `data/input_images/masks/` and distribute images into train and validation dataset folders.
 
 7. Start the training process:
    ```
-   python -m scripts.train.py
+   python -m scripts.train
    ```
 
 ## Requirements
