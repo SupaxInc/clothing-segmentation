@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import torch.optim as optim
 import albumentations as A
 from tqdm import tqdm
@@ -8,6 +7,7 @@ from models.UNet import *
 from scripts.utils import (
     load_checkpoint,
     save_checkpoint,
+    combined_loss,
     get_loaders,
     check_accuracy,
     save_predictions_as_imgs,
@@ -32,7 +32,7 @@ from config import (
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
     """
-    Training for one epoch. A batch of data will be processed per epoch.
+    Training for one epoch. Multiple batches of data and masks will be processed per epoch.
     Args:
         loader: DataLoader that provides batches of the data (input images and masks) for training
         model: NN model that will be used for training
@@ -42,9 +42,10 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
     """
     batch = tqdm(loader) # Progress bar for the total amount of data
 
+    # Calculate a batch of images and masks at once
     for batch_idx, (data, targets) in enumerate(batch):
-        data = data.to(device=DEVICE) # Assigning data to appropriate device (CPU or GPU)
-        targets = targets.to(device=DEVICE) # Prepares data (may need to reshape data depending on what loss_fn uses)
+        data = data.to(device=DEVICE) # Assigning images batch to appropriate device (CPU or GPU)
+        targets = targets.long().to(device=DEVICE) # Assigning one hot encoded masks to device (may need to reshape data depending on what loss_fn uses)
 
         # Forward pass to generate predictions and calculate loss using autocasting
         with torch.cuda.amp.autocast():
@@ -97,12 +98,10 @@ def main():
     )
     
     model = UNet(in_channels=3, out_channels=NUM_CLASSES).to(DEVICE)
-    # Categorical Cross Entropy Loss for multi-class classifications
-        # This will apply both cross-entropy loss and softmax activation in a single step
-        # Helps prevent numerical instability and is a lot more efficient when done in a single step 
-    loss_fn = nn.CrossEntropyLoss() 
+    
+    loss_fn = combined_loss
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, patience=10, verbose=True, min_lr = MIN_LEARNING_RATE)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10, verbose=True, min_lr = MIN_LEARNING_RATE)
 
     train_loader, val_loader = get_loaders( 
         TRAIN_IMG_DIR,

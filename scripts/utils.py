@@ -1,10 +1,10 @@
 import torch
+import torch.nn.functional as F
 import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
 import shutil
 import os
-import torch.nn.functional as F
 from config import (CLASS_MAPPING, CLASS_MAPPING_NAMING)
 from data.dataset import *
 from torch.utils.data import DataLoader
@@ -81,6 +81,37 @@ def get_loaders(
 
     return train_loader, val_loader
 
+def dice_loss(preds, targets, smooth=1.):
+    # preds: [B, C, H, W]
+    # targets: [B, C, H, W] (one-hot encoded)
+    
+    preds = F.softmax(preds, dim=1)
+    
+    intersection = (preds * targets).sum(dim=(2, 3))
+    union = preds.sum(dim=(2, 3)) + targets.sum(dim=(2, 3))
+    
+    dice = (2. * intersection + smooth) / (union + smooth)
+    return 1 - dice.mean()
+
+def combined_loss(preds, targets):
+    # preds: [B, C, H, W]
+    # targets: [B, C, H, W] (one-hot encoded)
+
+    # For CrossEntropyLoss, we need class indices
+    target_indices = torch.argmax(targets, dim=1)
+
+    # Categorical Cross Entropy Loss for multi-class classifications, handle class imbalance
+        # This will apply both cross-entropy loss and softmax activation in a single step
+        # Helps prevent numerical instability and is a lot more efficient when done in a single step 
+        # Focuses on pixel-wise classification accuracy
+    ce_loss = F.cross_entropy(preds, target_indices)
+
+    # Focuses on the overlap between the predicted segmentation and the ground truth
+        # Effective for boundary accuracy especially segmentation
+    dl_loss = dice_loss(preds, targets)
+
+    return ce_loss + dl_loss
+
 def check_accuracy(loader, model, num_classes, device="cuda"):
     """
     Calculates the accuracy by comparing the predicted class labels against the true labels across the entire dataset.
@@ -102,7 +133,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
         for x, y in loader:
             # Batch of inputs (x) and targets (y) loaded to the device
             x = x.to(device) # Input images
-            y = y.to(device) # Target masks (one-hot encoded)
+            y = y.long().to(device) # Target masks (one-hot encoded)
             
             outputs = model(x) # Pass the batch of input images to get raw scores (logits)
             preds = torch.argmax(outputs, dim=1) # For each pixel, it selects the class with the highest score (predicted class)
@@ -111,7 +142,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
             num_correct += (preds == y_indices).sum() # How many predicted class labels match the mask labels
             num_pixels += torch.numel(preds) # Total num of preds made (or pixels evaluated)
 
-            loss = F.cross_entropy(outputs, y_indices, reduction='mean')
+            loss = combined_loss(outputs, y)
             total_loss += loss.item()
 
             # Calculate the dice score for each class and average
