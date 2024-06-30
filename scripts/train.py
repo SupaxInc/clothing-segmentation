@@ -101,7 +101,7 @@ def main():
     
     loss_fn = combined_loss
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10, verbose=True, min_lr = MIN_LEARNING_RATE)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, patience=10, verbose=True, min_lr = MIN_LEARNING_RATE)
 
     train_loader, val_loader = get_loaders( 
         TRAIN_IMG_DIR,
