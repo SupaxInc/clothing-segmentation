@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import shutil
 import os
-from config import (CLASS_MAPPING, CLASS_MAPPING_NAMING)
+from collections import Counter
+from config import (CLASS_MAPPING, CLASS_MAPPING_NAMING, NUM_CLASSES)
 from data.dataset import *
 from torch.utils.data import DataLoader
 
@@ -81,6 +82,18 @@ def get_loaders(
 
     return train_loader, val_loader
 
+def calculate_class_weights(dataset):
+    class_counts = Counter()
+    for _, mask in dataset:
+        class_counts.update(mask.flatten())
+    print(class_counts)
+    total_pixels = sum(class_counts.values())
+    class_weights = {cls: total_pixels / (len(class_counts) * count) for cls, count in class_counts.items()}
+    print(class_weights)
+
+    # Ensure we have weights for all classes
+    return torch.tensor([class_weights.get(i, 1.0) for i in range(NUM_CLASSES)], dtype=torch.float32)
+
 def dice_loss(preds, targets, smooth=1.):
     # preds: [B, C, H, W]
     # targets: [B, C, H, W] (one-hot encoded)
@@ -93,9 +106,10 @@ def dice_loss(preds, targets, smooth=1.):
     dice = (2. * intersection + smooth) / (union + smooth)
     return 1 - dice.mean()
 
-def combined_loss(preds, targets):
+def combined_loss(preds, targets, weights):
     # preds: [B, C, H, W]
     # targets: [B, C, H, W] (one-hot encoded)
+    # weights: [C]
 
     # For CrossEntropyLoss, we need class indices
     target_indices = torch.argmax(targets, dim=1)
@@ -104,7 +118,7 @@ def combined_loss(preds, targets):
         # This will apply both cross-entropy loss and softmax activation in a single step
         # Helps prevent numerical instability and is a lot more efficient when done in a single step 
         # Focuses on pixel-wise classification accuracy
-    ce_loss = F.cross_entropy(preds, target_indices)
+    ce_loss = F.cross_entropy(preds, target_indices, weight=weights)
 
     # Focuses on the overlap between the predicted segmentation and the ground truth
         # Effective for boundary accuracy especially segmentation
@@ -112,7 +126,7 @@ def combined_loss(preds, targets):
 
     return ce_loss + dl_loss
 
-def check_accuracy(loader, model, num_classes, device="cuda"):
+def check_accuracy(loader, model, num_classes, device="cuda", weights=None):
     """
     Calculates the accuracy by comparing the predicted class labels against the true labels across the entire dataset.
     It also computes the Dice score, which is a measure of overlap between the predicted and true segmentation masks, averaged over all classes.
@@ -142,7 +156,7 @@ def check_accuracy(loader, model, num_classes, device="cuda"):
             num_correct += (preds == y_indices).sum() # How many predicted class labels match the mask labels
             num_pixels += torch.numel(preds) # Total num of preds made (or pixels evaluated)
 
-            loss = combined_loss(outputs, y)
+            loss = combined_loss(outputs, y, weights)
             total_loss += loss.item()
 
             # Calculate the dice score for each class and average

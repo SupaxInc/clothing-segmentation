@@ -11,6 +11,7 @@ from scripts.utils import (
     get_loaders,
     check_accuracy,
     save_predictions_as_imgs,
+    calculate_class_weights,
 )
 from config import (
     LEARNING_RATE,
@@ -99,7 +100,6 @@ def main():
     
     model = UNet(in_channels=3, out_channels=NUM_CLASSES).to(DEVICE)
     
-    loss_fn = combined_loss
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, patience=10, verbose=True, min_lr = MIN_LEARNING_RATE)
 
@@ -115,6 +115,9 @@ def main():
         NUM_WORKERS,
         PIN_MEMORY,
     )
+
+    class_weights = calculate_class_weights(train_loader.dataset).to(DEVICE)
+    loss_fn = lambda preds, targets: combined_loss(preds, targets, class_weights)
 
     if LOAD_MODEL:
         load_checkpoint(torch.load("my_checkpoint.pth.tar"), model)
@@ -133,7 +136,7 @@ def main():
         }
         save_checkpoint(checkpoint)
 
-        val_loss = check_accuracy(val_loader, model, NUM_CLASSES, device=DEVICE)
+        val_loss = check_accuracy(val_loader, model, NUM_CLASSES, device=DEVICE, weights=class_weights)
         scheduler.step(val_loss)
 
         # Print some examples to a folder
