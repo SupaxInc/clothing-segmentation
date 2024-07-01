@@ -1,5 +1,5 @@
-albucore==0.0.7
-albumentations==1.4.8
+albucore==0.0.12
+albumentations==1.4.10
 annotated-types==0.7.0
 asttokens==2.4.1
 colorama==0.4.6
@@ -59,9 +59,9 @@ tbb==2021.12.0
 threadpoolctl==3.5.0
 tifffile==2024.5.22
 tomli==2.0.1
-torch==2.3.0
-torchaudio==2.3.0
-torchvision==0.18.0
+torch==2.3.1+cu118
+torchaudio==2.3.1+cu118
+torchvision==0.18.1+cu118
 tornado==6.4.1
 tqdm==4.66.4
 traitlets==5.14.3
