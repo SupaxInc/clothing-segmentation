@@ -25,7 +25,7 @@ class ClothingCoParsingDataset(Dataset):
         image = np.array(Image.open(self.image_paths[idx]).convert('RGB')) # Converts PIL image to numpy array, each pixel will be 0 to 255
         mask = np.array(Image.open(self.mask_paths[idx]).convert('L'), dtype=np.uint8)  # Convert to grayscale, pixels 0 to 255 (whiteness)
         # Convert scaled mask back to original class labels
-        mask = np.round(mask / 43).astype(np.uint8)
+        mask = np.round(mask / 36).astype(np.uint8)
 
         if self.transform is not None:
             augmentations = self.transform(image=image, mask=mask)

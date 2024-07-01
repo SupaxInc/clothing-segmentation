@@ -16,6 +16,9 @@ def remap_annotation_classes(annotation):
         for original in originals:
             remapped_annotation[annotation == original] = new
     
+    unique, counts = np.unique(remapped_annotation, return_counts=True)
+    print(dict(zip(unique, counts)))
+
     return remapped_annotation
 
 def convert_mat_to_png(mat_directory, output_directory):
@@ -37,10 +40,9 @@ def convert_mat_to_png(mat_directory, output_directory):
             
             remapped_annotation = remap_annotation_classes(annotation)
             
-            # TODO: Change this so our mask is RGB instead of grayscale
             # Convert annotation matrix to an Image
-                # Scale remapped values from 0-5 by 36 to match grayscale value range 0-255 (making it brighter)
-            img = Image.fromarray((remapped_annotation * 43).astype(np.uint8))
+                # Scale remapped values from 0-6 by 36 to match grayscale value range 0-255 (making it brighter)
+            img = Image.fromarray((remapped_annotation * 36).astype(np.uint8))
             img.save(os.path.join(output_directory, filename.replace('.mat', '.png')))
     
 def split_data(base_image_path, base_mask_path, train_size=0.8):
